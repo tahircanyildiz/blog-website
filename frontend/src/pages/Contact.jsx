@@ -1,5 +1,6 @@
-import { useState } from 'react';
-import { sendContactMessage } from '../services/api';
+import { useState, useEffect } from 'react';
+import { sendContactMessage, getSettings } from '../services/api';
+import SocialMediaIcon from '../components/SocialMediaIcon';
 
 /**
  * İletişim Sayfası
@@ -14,6 +15,56 @@ function Contact() {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [submitStatus, setSubmitStatus] = useState(null); // 'success' | 'error'
+
+  // İletişim bilgileri ve sosyal medya
+  const [contactInfo, setContactInfo] = useState({
+    email: '',
+    location: ''
+  });
+  const [socialMedia, setSocialMedia] = useState([]);
+
+  // Sayfa yüklendiğinde ayarları getir
+  useEffect(() => {
+    fetchContactSettings();
+  }, []);
+
+  const fetchContactSettings = async () => {
+    try {
+      const response = await getSettings();
+      if (response.data) {
+        // İletişim bilgilerini al
+        if (response.data.contactInfo) {
+          setContactInfo(response.data.contactInfo);
+        }
+        // Sosyal medya bilgilerini al
+        if (response.data.socialMedia) {
+          const activePlatforms = response.data.socialMedia.filter(item => item.isActive && item.url);
+          setSocialMedia(activePlatforms);
+        }
+      }
+    } catch (error) {
+      console.error('İletişim bilgileri yüklenirken hata oluştu:', error);
+    }
+  };
+
+  // Platform adlarını düzgün göstermek için
+  const getPlatformLabel = (platform) => {
+    const labels = {
+      github: 'GitHub',
+      linkedin: 'LinkedIn',
+      twitter: 'Twitter/X',
+      instagram: 'Instagram',
+      facebook: 'Facebook',
+      youtube: 'YouTube',
+      medium: 'Medium',
+      tiktok: 'TikTok',
+      discord: 'Discord',
+      telegram: 'Telegram',
+      whatsapp: 'WhatsApp',
+      email: 'Email'
+    };
+    return labels[platform] || platform;
+  };
 
   // Input değişikliklerini takip et
   const handleChange = (e) => {
@@ -107,79 +158,98 @@ function Contact() {
             <h2 className="text-2xl font-bold text-gray-900 mb-6">İletişim Bilgileri</h2>
 
             <div className="space-y-6">
-              {/* Email */}
-              <div className="flex items-start">
-                <div className="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <svg
-                    className="w-6 h-6 text-primary-600"
-                    fill="none"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                  </svg>
-                </div>
-                <div className="ml-4">
-                  <h3 className="text-lg font-semibold text-gray-900">E-posta</h3>
-                  <p className="text-gray-600">your-email@example.com</p>
-                </div>
-              </div>
-
-              {/* Konum */}
-              <div className="flex items-start">
-                <div className="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <svg
-                    className="w-6 h-6 text-primary-600"
-                    fill="none"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                    <path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
-                </div>
-                <div className="ml-4">
-                  <h3 className="text-lg font-semibold text-gray-900">Konum</h3>
-                  <p className="text-gray-600">Türkiye</p>
-                </div>
-              </div>
-
-              {/* Sosyal Medya */}
-              <div className="flex items-start">
-                <div className="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <svg
-                    className="w-6 h-6 text-primary-600"
-                    fill="none"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                  </svg>
-                </div>
-                <div className="ml-4">
-                  <h3 className="text-lg font-semibold text-gray-900">Sosyal Medya</h3>
-                  <div className="flex space-x-3 mt-2">
-                    <a href="#" className="text-gray-600 hover:text-primary-600 transition-colors">
-                      GitHub
-                    </a>
-                    <a href="#" className="text-gray-600 hover:text-primary-600 transition-colors">
-                      LinkedIn
-                    </a>
-                    <a href="#" className="text-gray-600 hover:text-primary-600 transition-colors">
-                      Twitter
+              {/* Email - Dinamik */}
+              {contactInfo.email && contactInfo.email.trim() !== '' && (
+                <div className="flex items-start">
+                  <div className="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <svg
+                      className="w-6 h-6 text-primary-600"
+                      fill="none"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                  <div className="ml-4">
+                    <h3 className="text-lg font-semibold text-gray-900">E-posta</h3>
+                    <a href={`mailto:${contactInfo.email}`} className="text-gray-600 hover:text-primary-600 transition-colors">
+                      {contactInfo.email}
                     </a>
                   </div>
                 </div>
-              </div>
+              )}
+
+              {/* Konum - Dinamik */}
+              {contactInfo.location && contactInfo.location.trim() !== '' && (
+                <div className="flex items-start">
+                  <div className="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <svg
+                      className="w-6 h-6 text-primary-600"
+                      fill="none"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                      <path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                  </div>
+                  <div className="ml-4">
+                    <h3 className="text-lg font-semibold text-gray-900">Konum</h3>
+                    <p className="text-gray-600 whitespace-pre-line">{contactInfo.location}</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Sosyal Medya - Dinamik */}
+              {socialMedia.length > 0 && (
+                <div className="flex items-start">
+                  <div className="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <svg
+                      className="w-6 h-6 text-primary-600"
+                      fill="none"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                    </svg>
+                  </div>
+                  <div className="ml-4">
+                    <h3 className="text-lg font-semibold text-gray-900">Sosyal Medya</h3>
+                    <div className="flex flex-wrap gap-3 mt-2">
+                      {socialMedia.map((item) => (
+                        <a
+                          key={item.platform}
+                          href={item.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-primary-600 hover:text-primary-700 transition-colors"
+                          aria-label={getPlatformLabel(item.platform)}
+                          title={getPlatformLabel(item.platform)}
+                        >
+                          <SocialMediaIcon platform={item.platform} className="w-6 h-6" />
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Hiç bilgi yoksa */}
+              {!contactInfo.email && !contactInfo.location && socialMedia.length === 0 && (
+                <div className="text-center py-8 text-gray-500">
+                  <p>İletişim bilgileri henüz eklenmemiş.</p>
+                </div>
+              )}
             </div>
           </div>
 

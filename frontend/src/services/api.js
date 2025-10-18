@@ -165,4 +165,40 @@ export const getMe = async () => {
   return response.data;
 };
 
+// ==================== SETTINGS API ====================
+
+/**
+ * Site ayarlarını getir (Public)
+ */
+export const getSettings = async () => {
+  const response = await api.get('/settings');
+  return response.data;
+};
+
+/**
+ * Sosyal medya ayarlarını güncelle (Admin)
+ * @param {Array} socialMedia - [{platform, url, isActive}]
+ */
+export const updateSocialMedia = async (socialMedia) => {
+  const response = await api.put('/settings/social-media', { socialMedia });
+  return response.data;
+};
+
+/**
+ * İletişim bilgilerini güncelle (Admin)
+ * @param {Object} contactInfo - {email, location}
+ */
+export const updateContactInfo = async (contactInfo) => {
+  const response = await api.put('/settings/contact-info', contactInfo);
+  return response.data;
+};
+
+/**
+ * Tüm ayarları güncelle (Admin)
+ */
+export const updateSettings = async (data) => {
+  const response = await api.put('/settings', data);
+  return response.data;
+};
+
 export default api;

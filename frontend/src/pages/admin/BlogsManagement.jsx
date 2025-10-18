@@ -112,7 +112,7 @@ function BlogsManagement() {
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {new Date(blog.createdAt).toLocaleDateString('tr-TR')}
+                    {blog.publishDate ? new Date(blog.publishDate).toLocaleDateString('tr-TR') : '-'}
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex flex-wrap gap-1">

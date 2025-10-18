@@ -15,6 +15,8 @@ import BlogsManagement from './pages/admin/BlogsManagement';
 import BlogForm from './pages/admin/BlogForm';
 import ContactsManagement from './pages/admin/ContactsManagement';
 import AboutManagement from './pages/admin/AboutManagement';
+import SocialMediaSettings from './pages/admin/SocialMediaSettings';
+import ContactInfoSettings from './pages/admin/ContactInfoSettings';
 
 /**
  * Ana Uygulama Bileşeni
@@ -105,6 +107,8 @@ function App() {
             <Route path="blogs/edit/:id" element={<BlogForm />} />
             <Route path="contacts" element={<ContactsManagement />} />
             <Route path="about" element={<AboutManagement />} />
+            <Route path="social-media" element={<SocialMediaSettings />} />
+            <Route path="contact-info" element={<ContactInfoSettings />} />
           </Route>
 
           {/* 404 - Sayfa Bulunamadı */}

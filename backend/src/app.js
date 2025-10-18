@@ -7,6 +7,7 @@ const authRoutes = require('./routes/authRoutes');
 const aboutRoutes = require('./routes/aboutRoutes');
 const blogRoutes = require('./routes/blogRoutes');
 const contactRoutes = require('./routes/contactRoutes');
+const settingsRoutes = require('./routes/settingsRoutes');
 
 const app = express();
 
@@ -25,7 +26,8 @@ app.get('/', (req, res) => {
       auth: '/api/auth',
       about: '/api/about',
       blogs: '/api/blogs',
-      contact: '/api/contact'
+      contact: '/api/contact',
+      settings: '/api/settings'
     }
   });
 });
@@ -35,6 +37,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/about', aboutRoutes);
 app.use('/api/blogs', blogRoutes);
 app.use('/api/contact', contactRoutes);
+app.use('/api/settings', settingsRoutes);
 
 // 404 handler - Tanımlanmamış route'lar için
 app.use((req, res, next) => {

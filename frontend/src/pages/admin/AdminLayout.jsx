@@ -20,6 +20,8 @@ function AdminLayout() {
     { path: '/admin/blogs', label: 'Blog Yönetimi', icon: '📝' },
     { path: '/admin/contacts', label: 'Mesajlar', icon: '✉️' },
     { path: '/admin/about', label: 'Hakkımda', icon: '👤' },
+    { path: '/admin/social-media', label: 'Sosyal Medya', icon: '📱' },
+    { path: '/admin/contact-info', label: 'İletişim Bilgileri', icon: '📞' },
   ];
 
   const isActive = (path) => {
