@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { getAbout, updateAbout } from '../../services/api';
 import Loading from '../../components/Loading';
 import ErrorMessage from '../../components/ErrorMessage';
@@ -77,6 +78,22 @@ function AboutManagement() {
       experiences: prev.experiences.map((exp, i) =>
         i === index ? { ...exp, [field]: value } : exp
       )
+    }));
+  };
+
+  // Experience sıralama (drag & drop)
+  const handleDragEnd = (result) => {
+    if (!result.destination) {
+      return;
+    }
+
+    const items = Array.from(formData.experiences);
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
+
+    setFormData(prev => ({
+      ...prev,
+      experiences: items
     }));
   };
 
@@ -213,85 +230,120 @@ function AboutManagement() {
               </button>
             </div>
           ) : (
-            <div className="space-y-6">
-              {formData.experiences.map((exp, index) => (
-                <div key={index} className="border border-gray-200 rounded-lg p-4 relative">
-                  {/* Silme Butonu */}
-                  <button
-                    type="button"
-                    onClick={() => removeExperience(index)}
-                    className="absolute top-2 right-2 text-red-600 hover:text-red-800"
-                    title="Sil"
+            <DragDropContext onDragEnd={handleDragEnd}>
+              <Droppable droppableId="experiences">
+                {(provided) => (
+                  <div
+                    {...provided.droppableProps}
+                    ref={provided.innerRef}
+                    className="space-y-6"
                   >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </button>
+                    {formData.experiences.map((exp, index) => (
+                      <Draggable key={`exp-${index}`} draggableId={`exp-${index}`} index={index}>
+                        {(provided, snapshot) => (
+                          <div
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            className={`border border-gray-200 rounded-lg p-4 relative ${
+                              snapshot.isDragging ? 'shadow-lg bg-gray-50' : ''
+                            }`}
+                          >
+                            {/* Sürükleme Handle ve Silme Butonu */}
+                            <div className="flex items-center justify-between mb-3">
+                              <div
+                                {...provided.dragHandleProps}
+                                className="cursor-move text-gray-400 hover:text-gray-600 flex items-center"
+                                title="Sürükleyerek sırayı değiştir"
+                              >
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8h16M4 16h16" />
+                                </svg>
+                                <span className="ml-2 text-sm font-medium text-gray-500">
+                                  Deneyim #{index + 1}
+                                </span>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => removeExperience(index)}
+                                className="text-red-600 hover:text-red-800"
+                                title="Sil"
+                              >
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                              </button>
+                            </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {/* Pozisyon */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Pozisyon <span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        value={exp.title}
-                        onChange={(e) => updateExperience(index, 'title', e.target.value)}
-                        required
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                        placeholder="Senior Developer"
-                      />
-                    </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              {/* Pozisyon */}
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                  Pozisyon <span className="text-red-500">*</span>
+                                </label>
+                                <input
+                                  type="text"
+                                  value={exp.title}
+                                  onChange={(e) => updateExperience(index, 'title', e.target.value)}
+                                  required
+                                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                  placeholder="Senior Developer"
+                                />
+                              </div>
 
-                    {/* Şirket */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Şirket <span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        value={exp.company}
-                        onChange={(e) => updateExperience(index, 'company', e.target.value)}
-                        required
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                        placeholder="ABC Teknoloji"
-                      />
-                    </div>
+                              {/* Şirket */}
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                  Şirket <span className="text-red-500">*</span>
+                                </label>
+                                <input
+                                  type="text"
+                                  value={exp.company}
+                                  onChange={(e) => updateExperience(index, 'company', e.target.value)}
+                                  required
+                                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                  placeholder="ABC Teknoloji"
+                                />
+                              </div>
 
-                    {/* Dönem */}
-                    <div className="md:col-span-2">
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Dönem <span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        value={exp.period}
-                        onChange={(e) => updateExperience(index, 'period', e.target.value)}
-                        required
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                        placeholder="2020 - 2023 veya 2020 - Halen"
-                      />
-                    </div>
+                              {/* Dönem */}
+                              <div className="md:col-span-2">
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                  Dönem <span className="text-red-500">*</span>
+                                </label>
+                                <input
+                                  type="text"
+                                  value={exp.period}
+                                  onChange={(e) => updateExperience(index, 'period', e.target.value)}
+                                  required
+                                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                  placeholder="2020 - 2023 veya 2020 - Halen"
+                                />
+                              </div>
 
-                    {/* Açıklama */}
-                    <div className="md:col-span-2">
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Açıklama <span className="text-red-500">*</span>
-                      </label>
-                      <textarea
-                        value={exp.description}
-                        onChange={(e) => updateExperience(index, 'description', e.target.value)}
-                        required
-                        rows={3}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                        placeholder="Bu pozisyonda yaptığınız işleri kısaca açıklayın..."
-                      />
-                    </div>
+                              {/* Açıklama */}
+                              <div className="md:col-span-2">
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                  Açıklama <span className="text-red-500">*</span>
+                                </label>
+                                <textarea
+                                  value={exp.description}
+                                  onChange={(e) => updateExperience(index, 'description', e.target.value)}
+                                  required
+                                  rows={3}
+                                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                  placeholder="Bu pozisyonda yaptığınız işleri kısaca açıklayın..."
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </Draggable>
+                    ))}
+                    {provided.placeholder}
                   </div>
-                </div>
-              ))}
-            </div>
+                )}
+              </Droppable>
+            </DragDropContext>
           )}
         </div>
 
