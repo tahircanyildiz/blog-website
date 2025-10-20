@@ -1,9 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { getBlogById, createBlog, updateBlog } from '../../services/api';
+import ReactMarkdown from 'react-markdown';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 /**
- * Blog Oluştur/Düzenle Formu
+ * Blog Oluştur/Düzenle Formu (Markdown destekli)
  */
 function BlogForm() {
   const { id } = useParams();
@@ -20,9 +23,7 @@ function BlogForm() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    if (isEditMode) {
-      fetchBlog();
-    }
+    if (isEditMode) fetchBlog();
   }, [id]);
 
   const fetchBlog = async () => {
@@ -100,10 +101,7 @@ function BlogForm() {
       <form onSubmit={handleSubmit} className="bg-white shadow rounded-lg p-6">
         {/* Title */}
         <div className="mb-4">
-          <label
-            htmlFor="title"
-            className="block text-sm font-medium text-gray-700 mb-2"
-          >
+          <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
             Başlık *
           </label>
           <input
@@ -120,10 +118,7 @@ function BlogForm() {
 
         {/* Short Description */}
         <div className="mb-4">
-          <label
-            htmlFor="shortDescription"
-            className="block text-sm font-medium text-gray-700 mb-2"
-          >
+          <label htmlFor="shortDescription" className="block text-sm font-medium text-gray-700 mb-2">
             Kısa Açıklama * (Max 200 karakter)
           </label>
           <textarea
@@ -137,37 +132,63 @@ function BlogForm() {
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
             placeholder="Kısa açıklama"
           />
-          <p className="mt-1 text-sm text-gray-500">
-            {formData.shortDescription.length}/200
-          </p>
+          <p className="mt-1 text-sm text-gray-500">{formData.shortDescription.length}/200</p>
         </div>
 
-        {/* Content */}
-        <div className="mb-4">
-          <label
-            htmlFor="content"
-            className="block text-sm font-medium text-gray-700 mb-2"
-          >
+        {/* Content - Markdown Editor */}
+        <div className="mb-6">
+          <label htmlFor="content" className="block text-sm font-medium text-gray-700 mb-2">
             İçerik * (Markdown destekler)
           </label>
-          <textarea
-            id="content"
-            name="content"
-            value={formData.content}
-            onChange={handleChange}
-            required
-            rows={15}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 font-mono text-sm"
-            placeholder="Blog içeriğini markdown formatında yazın"
-          />
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Markdown Input */}
+            <textarea
+              id="content"
+              name="content"
+              value={formData.content}
+              onChange={handleChange}
+              required
+              rows={15}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 font-mono text-sm"
+              placeholder="Markdown formatında blog içeriğini yazın (örn. ```js ... ```)"
+            />
+
+            {/* Live Markdown Preview */}
+            <div className="border border-gray-300 rounded-md p-3 bg-gray-50 overflow-y-auto max-h-[400px] prose prose-indigo">
+              <ReactMarkdown
+                children={formData.content}
+                components={{
+                  code({ inline, className, children, ...props }) {
+                    const match = /language-(\w+)/.exec(className || '');
+                    return !inline && match ? (
+                      <SyntaxHighlighter
+                        style={vscDarkPlus}
+                        language={match[1]}
+                        PreTag="div"
+                        className="rounded-md"
+                        {...props}
+                      >
+                        {String(children).replace(/\n$/, '')}
+                      </SyntaxHighlighter>
+                    ) : (
+                      <code
+                        className="bg-gray-200 text-gray-800 rounded px-1 py-0.5 font-mono text-sm"
+                        {...props}
+                      >
+                        {children}
+                      </code>
+                    );
+                  },
+                }}
+              />
+            </div>
+          </div>
         </div>
 
         {/* Tags */}
         <div className="mb-6">
-          <label
-            htmlFor="tags"
-            className="block text-sm font-medium text-gray-700 mb-2"
-          >
+          <label htmlFor="tags" className="block text-sm font-medium text-gray-700 mb-2">
             Etiketler (virgülle ayırın)
           </label>
           <input

@@ -53,10 +53,10 @@ function About() {
 
         {/* Deneyimler Bölümü */}
         {aboutData.experiences && aboutData.experiences.length > 0 && (
-          <div className="bg-white rounded-lg shadow-lg p-8 mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+          <div className="mb-8">
+            <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center">
               <svg
-                className="w-7 h-7 mr-3 text-primary-600"
+                className="w-8 h-8 mr-3 text-primary-600"
                 fill="none"
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -68,14 +68,40 @@ function About() {
               </svg>
               Deneyimler
             </h2>
-            <div className="space-y-4">
+            <div className="space-y-6">
               {aboutData.experiences.map((exp, index) => (
                 <div
                   key={index}
-                  className="border-l-4 border-primary-600 pl-6 py-3"
+                  className="bg-white rounded-lg shadow-lg p-6 border-l-4 border-primary-600 hover:shadow-xl transition-shadow"
                 >
-                  <p className="text-lg text-gray-800 leading-relaxed">
-                    {exp}
+                  <div className="mb-3">
+                    <h3 className="text-xl font-bold text-gray-900 mb-1">
+                      {exp.title}
+                    </h3>
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                      <span className="text-lg font-medium text-primary-600">
+                        {exp.company}
+                      </span>
+                      <span className="text-sm text-gray-600 flex items-center">
+                        <svg
+                          className="w-4 h-4 mr-1"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                          />
+                        </svg>
+                        {exp.period}
+                      </span>
+                    </div>
+                  </div>
+                  <p className="text-gray-700 leading-relaxed whitespace-pre-line">
+                    {exp.description}
                   </p>
                 </div>
               ))}

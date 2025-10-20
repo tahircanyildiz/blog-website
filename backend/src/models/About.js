@@ -19,8 +19,26 @@ const aboutSchema = new mongoose.Schema({
     required: [true, 'Açıklama alanı zorunludur']
   },
   experiences: [{
-    type: String,
-    trim: true
+    title: {
+      type: String,
+      required: true,
+      trim: true
+    },
+    company: {
+      type: String,
+      required: true,
+      trim: true
+    },
+    period: {
+      type: String,
+      required: true,
+      trim: true
+    },
+    description: {
+      type: String,
+      required: true,
+      trim: true
+    }
   }],
   technologies: [{
     type: String

@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import ReactMarkdown from 'react-markdown';
 import { getBlogById } from '../services/api';
 import Loading from '../components/Loading';
 import ErrorMessage from '../components/ErrorMessage';
 
+import ReactMarkdown from "react-markdown";
+import rehypeRaw from "rehype-raw";
+import rehypeHighlight from "rehype-highlight";
+import "highlight.js/styles/github-dark.css"; // Kod blokları siyah arka planlı görünür
 /**
  * Blog Detay Sayfası
  * Tek bir blog yazısının tüm içeriğini gösterir
@@ -133,18 +136,23 @@ function BlogDetail() {
             </div>
 
             {/* Ana İçerik - Markdown Desteği */}
-            <div className="prose prose-lg max-w-none
-                          prose-headings:text-gray-900 prose-headings:font-bold
-                          prose-p:text-gray-700 prose-p:leading-relaxed
-                          prose-a:text-primary-600 prose-a:no-underline hover:prose-a:underline
-                          prose-strong:text-gray-900 prose-strong:font-semibold
-                          prose-code:text-primary-600 prose-code:bg-primary-50 prose-code:px-1 prose-code:rounded
-                          prose-pre:bg-gray-900 prose-pre:text-gray-100
-                          prose-ul:list-disc prose-ol:list-decimal
-                          prose-li:text-gray-700
-                          prose-blockquote:border-primary-600 prose-blockquote:bg-primary-50 prose-blockquote:text-gray-700">
-              <ReactMarkdown>{blog.content}</ReactMarkdown>
-            </div>
+            <div
+  className="prose prose-lg max-w-none
+    prose-headings:text-gray-900 prose-headings:font-bold
+    prose-p:text-gray-700 prose-p:leading-relaxed
+    prose-a:text-primary-600 prose-a:no-underline hover:prose-a:underline
+    prose-strong:text-gray-900 prose-strong:font-semibold
+    prose-code:text-primary-100 prose-code:bg-gray-900 prose-code:px-2 prose-code:py-1 prose-code:rounded-lg
+    prose-pre:bg-gray-900 prose-pre:text-gray-100 prose-pre:rounded-xl prose-pre:p-4
+    prose-ul:list-disc prose-ol:list-decimal
+    prose-li:text-gray-700
+    prose-blockquote:border-l-4 prose-blockquote:border-primary-600 prose-blockquote:bg-primary-50 prose-blockquote:text-gray-700
+    prose-img:rounded-xl prose-img:shadow-md">
+  
+  <ReactMarkdown rehypePlugins={[rehypeRaw, rehypeHighlight]}>
+    {blog.content}
+  </ReactMarkdown>
+</div>
           </div>
         </article>
 

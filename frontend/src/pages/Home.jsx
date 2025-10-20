@@ -1,17 +1,35 @@
 import { Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { getAbout } from '../services/api';
 
 /**
  * Anasayfa - Karşılama sayfası
  * Kısa tanıtım ve sayfalara yönlendirme butonları
  */
 function Home() {
+  const [name, setName] = useState('Adınız');
+
+  useEffect(() => {
+    const fetchAboutData = async () => {
+      try {
+        const response = await getAbout();
+        setName(response.data.name);
+      } catch (error) {
+        console.error('Failed to fetch about data:', error);
+      }
+    };
+
+    fetchAboutData();
+  }, []);
+
   return (
     <div className="min-h-[calc(100vh-180px)] flex items-center justify-center bg-gradient-to-br from-primary-50 to-white">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 text-center">
         {/* Ana Başlık */}
         <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
           Merhaba, Ben{' '}
-          <span className="text-primary-600">Adınız</span>
+          <br />
+          <span className="text-primary-600">{name}</span>
         </h1>
 
         {/* Alt Başlık */}
