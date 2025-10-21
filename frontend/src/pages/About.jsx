@@ -40,12 +40,29 @@ function About() {
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Başlık Bölümü */}
         <div className="bg-white rounded-lg shadow-lg p-8 mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">
-            {aboutData.name}
-          </h1>
-          <p className="text-xl text-primary-600 font-medium mb-4">
-            {aboutData.title}
-          </p>
+          <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-4">
+            <div className="flex-1">
+              <h1 className="text-4xl font-bold text-gray-900 mb-2">
+                {aboutData.name}
+              </h1>
+              <p className="text-xl text-primary-600 font-medium mb-4">
+                {aboutData.title}
+              </p>
+            </div>
+            {/* CV İndirme Butonu */}
+            {aboutData.cvFile && (
+              <a
+                href={`${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000'}/uploads/${aboutData.cvFile}`}
+                download
+                className="inline-flex items-center px-6 py-3 bg-primary-600 text-white font-medium rounded-lg hover:bg-primary-700 transition-colors shadow-md hover:shadow-lg"
+              >
+                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                CV İndir
+              </a>
+            )}
+          </div>
           <p className="text-gray-700 leading-relaxed whitespace-pre-line">
             {aboutData.description}
           </p>

@@ -69,6 +69,30 @@ export const updateAbout = async (data) => {
   return response.data;
 };
 
+/**
+ * CV dosyasını yükle (Admin)
+ * @param {File} file - CV dosyası (PDF)
+ */
+export const uploadCV = async (file) => {
+  const formData = new FormData();
+  formData.append('cv', file);
+
+  const response = await api.post('/about/cv', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  return response.data;
+};
+
+/**
+ * CV dosyasını sil (Admin)
+ */
+export const deleteCV = async () => {
+  const response = await api.delete('/about/cv');
+  return response.data;
+};
+
 // ==================== BLOG API ====================
 
 /**

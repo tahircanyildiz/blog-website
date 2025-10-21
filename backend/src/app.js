@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 const errorHandler = require('./middleware/errorHandler');
 
 // Route dosyalarını import et
@@ -15,6 +16,9 @@ const app = express();
 app.use(cors()); // CORS aktif
 app.use(express.json()); // JSON body parser
 app.use(express.urlencoded({ extended: true })); // URL-encoded body parser
+
+// Static file serving for uploads
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // Ana sayfa için basit bir route
 app.get('/', (req, res) => {

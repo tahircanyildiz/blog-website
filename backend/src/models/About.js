@@ -42,7 +42,11 @@ const aboutSchema = new mongoose.Schema({
   }],
   technologies: [{
     type: String
-  }]
+  }],
+  cvFile: {
+    type: String,
+    default: null
+  }
 }, {
   timestamps: true // createdAt ve updatedAt alanlarını otomatik ekler
 });

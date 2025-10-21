@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(npm install @hello-pangea/dnd)"
+      "Bash(npm install @hello-pangea/dnd)",
+      "Bash(npm install:*)"
     ],
     "deny": [],
     "ask": []

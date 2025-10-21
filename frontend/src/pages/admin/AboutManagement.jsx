@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
-import { getAbout, updateAbout } from '../../services/api';
+import { getAbout, updateAbout, uploadCV, deleteCV } from '../../services/api';
 import Loading from '../../components/Loading';
 import ErrorMessage from '../../components/ErrorMessage';
 
@@ -10,13 +10,16 @@ function AboutManagement() {
     title: '',
     description: '',
     experiences: [],
-    technologies: ''
+    technologies: '',
+    cvFile: null
   });
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
+  const [cvUploading, setCvUploading] = useState(false);
+  const [cvFile, setCvFile] = useState(null);
 
   useEffect(() => {
     fetchAbout();
@@ -35,6 +38,7 @@ function AboutManagement() {
         description: data.description || '',
         experiences: data.experiences || [],
         technologies: data.technologies?.join(', ') || '',
+        cvFile: data.cvFile || null
       });
     } catch (err) {
       setError('Hakkımda bilgileri yüklenirken bir hata oluştu');
@@ -123,6 +127,84 @@ function AboutManagement() {
       setError(err.response?.data?.message || 'Güncelleme sırasında bir hata oluştu');
     } finally {
       setSaving(false);
+    }
+  };
+
+  // CV dosyası seçimi
+  const handleCVFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // PDF kontrolü
+      if (file.type !== 'application/pdf') {
+        setError('Sadece PDF dosyaları yüklenebilir');
+        e.target.value = '';
+        return;
+      }
+      // Boyut kontrolü (5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        setError('Dosya boyutu 5MB\'dan küçük olmalıdır');
+        e.target.value = '';
+        return;
+      }
+      setCvFile(file);
+    }
+  };
+
+  // CV yükleme
+  const handleCVUpload = async () => {
+    if (!cvFile) {
+      setError('Lütfen bir CV dosyası seçin');
+      return;
+    }
+
+    setCvUploading(true);
+    setError(null);
+
+    try {
+      await uploadCV(cvFile);
+      setSuccess(true);
+      setCvFile(null);
+
+      // CV input'u temizle
+      const fileInput = document.getElementById('cv-file');
+      if (fileInput) fileInput.value = '';
+
+      // Güncel veriyi tekrar çek
+      await fetchAbout();
+
+      setTimeout(() => {
+        setSuccess(false);
+      }, 3000);
+    } catch (err) {
+      setError(err.response?.data?.message || 'CV yüklenirken bir hata oluştu');
+    } finally {
+      setCvUploading(false);
+    }
+  };
+
+  // CV silme
+  const handleCVDelete = async () => {
+    if (!window.confirm('CV dosyasını silmek istediğinize emin misiniz?')) {
+      return;
+    }
+
+    setCvUploading(true);
+    setError(null);
+
+    try {
+      await deleteCV();
+      setSuccess(true);
+
+      // Güncel veriyi tekrar çek
+      await fetchAbout();
+
+      setTimeout(() => {
+        setSuccess(false);
+      }, 3000);
+    } catch (err) {
+      setError(err.response?.data?.message || 'CV silinirken bir hata oluştu');
+    } finally {
+      setCvUploading(false);
     }
   };
 
@@ -367,6 +449,82 @@ function AboutManagement() {
             <p className="mt-1 text-sm text-gray-500">
               Teknolojileri virgülle ayırarak yazın. Örn: React, Node.js, TypeScript
             </p>
+          </div>
+        </div>
+
+        {/* CV Yönetimi */}
+        <div className="bg-white shadow rounded-lg p-6">
+          <h2 className="text-xl font-bold text-gray-900 mb-4">CV Yönetimi</h2>
+
+          {/* Mevcut CV */}
+          {formData.cvFile && (
+            <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <svg className="w-8 h-8 text-green-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  <div>
+                    <p className="text-sm font-medium text-green-900">CV dosyanız yüklü</p>
+                    <a
+                      href={`${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000'}/uploads/${formData.cvFile}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs text-green-700 hover:text-green-800 underline"
+                    >
+                      CV'yi görüntüle
+                    </a>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleCVDelete}
+                  disabled={cvUploading}
+                  className="px-3 py-2 bg-red-600 text-white text-sm rounded-md hover:bg-red-700 transition-colors disabled:opacity-50"
+                >
+                  {cvUploading ? 'Siliniyor...' : 'Sil'}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* CV Yükleme */}
+          <div className="space-y-3">
+            <div>
+              <label htmlFor="cv-file" className="block text-sm font-medium text-gray-700 mb-2">
+                {formData.cvFile ? 'Yeni CV Yükle' : 'CV Dosyası Yükle'} (PDF)
+              </label>
+              <input
+                type="file"
+                id="cv-file"
+                accept=".pdf"
+                onChange={handleCVFileChange}
+                disabled={cvUploading}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 disabled:opacity-50"
+              />
+              <p className="mt-1 text-sm text-gray-500">
+                Sadece PDF formatında, maksimum 5MB boyutunda dosya yüklenebilir.
+              </p>
+            </div>
+
+            {cvFile && (
+              <div className="flex items-center justify-between p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <div className="flex items-center">
+                  <svg className="w-6 h-6 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  <span className="text-sm text-blue-900">{cvFile.name}</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleCVUpload}
+                  disabled={cvUploading}
+                  className="px-4 py-2 bg-indigo-600 text-white text-sm rounded-md hover:bg-indigo-700 transition-colors disabled:opacity-50"
+                >
+                  {cvUploading ? 'Yükleniyor...' : 'Yükle'}
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
