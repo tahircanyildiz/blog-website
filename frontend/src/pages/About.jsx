@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { User, Briefcase, Code2, Download } from 'lucide-react';
 import { getAbout } from '../services/api';
 import Loading from '../components/Loading';
 import ErrorMessage from '../components/ErrorMessage';
@@ -36,16 +37,32 @@ function About() {
   if (!aboutData) return <div className="container mx-auto px-4 py-8"><ErrorMessage message="Veri bulunamadı" /></div>;
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-blue-50 via-white to-violet-50 py-12">
+      {/* Decorative gradient shapes */}
+      <div className="absolute top-20 right-10 w-72 h-72 bg-gradient-to-r from-violet-400 to-pink-400 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob"></div>
+      <div className="absolute bottom-20 left-10 w-72 h-72 bg-gradient-to-r from-blue-400 to-indigo-400 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob animation-delay-2000"></div>
+
+      {/* Background Logo - Fixed Position */}
+      <div className="fixed inset-0 flex items-center justify-center pointer-events-none z-0 ">
+        <img
+          src="/logotcy.png"
+          alt="Background Logo"
+          className="w-[600px] h-[600px] object-contain opacity-5 select-none"
+        />
+      </div>
+
+      <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Başlık Bölümü */}
-        <div className="bg-white rounded-lg shadow-lg p-8 mb-8">
-          <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-4">
+        <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 mb-8 border border-blue-100">
+          <div className="flex items-center gap-4 mb-6">
+            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-violet-600 flex items-center justify-center shadow-lg">
+              <User className="w-8 h-8 text-white" strokeWidth={2.5} />
+            </div>
             <div className="flex-1">
-              <h1 className="text-4xl font-bold text-gray-900 mb-2">
+              <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-violet-900 bg-clip-text text-transparent">
                 {aboutData.name}
               </h1>
-              <p className="text-xl text-primary-600 font-medium mb-4">
+              <p className="text-xl text-blue-600 font-medium mt-1">
                 {aboutData.title}
               </p>
             </div>
@@ -54,16 +71,14 @@ function About() {
               <a
                 href={`${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000'}/uploads/${aboutData.cvFile}`}
                 download
-                className="inline-flex items-center px-6 py-3 bg-primary-600 text-white font-medium rounded-lg hover:bg-primary-700 transition-colors shadow-md hover:shadow-lg"
+                className="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition-all duration-300 shadow-lg hover:shadow-xl group"
               >
-                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
+                <Download className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform duration-300" />
                 CV İndir
               </a>
             )}
           </div>
-          <p className="text-gray-700 leading-relaxed whitespace-pre-line">
+          <p className="text-gray-700 text-lg leading-relaxed whitespace-pre-line">
             {aboutData.description}
           </p>
         </div>
@@ -71,48 +86,25 @@ function About() {
         {/* Deneyimler Bölümü */}
         {aboutData.experiences && aboutData.experiences.length > 0 && (
           <div className="mb-8">
-            <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center">
-              <svg
-                className="w-8 h-8 mr-3 text-primary-600"
-                fill="none"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-              </svg>
+            <h2 className="text-3xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-violet-900 bg-clip-text text-transparent mb-6 flex items-center">
+              <Briefcase className="w-8 h-8 mr-3 text-blue-600" strokeWidth={2.5} />
               Deneyimler
             </h2>
             <div className="space-y-6">
               {aboutData.experiences.map((exp, index) => (
                 <div
                   key={index}
-                  className="bg-white rounded-lg shadow-lg p-6 border-l-4 border-primary-600 hover:shadow-xl transition-shadow"
+                  className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-6 border-l-4 border-blue-600 hover:shadow-2xl hover:border-violet-600 transition-all duration-300 group"
                 >
                   <div className="mb-3">
-                    <h3 className="text-xl font-bold text-gray-900 mb-1">
+                    <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-700 transition-colors">
                       {exp.title}
                     </h3>
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                      <span className="text-lg font-medium text-primary-600">
+                      <span className="text-lg font-semibold text-blue-600">
                         {exp.company}
                       </span>
-                      <span className="text-sm text-gray-600 flex items-center">
-                        <svg
-                          className="w-4 h-4 mr-1"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                          />
-                        </svg>
+                      <span className="text-sm text-gray-600 font-medium px-3 py-1 bg-gray-100 rounded-full">
                         {exp.period}
                       </span>
                     </div>
@@ -128,27 +120,18 @@ function About() {
 
         {/* Teknolojiler Bölümü */}
         {aboutData.technologies && aboutData.technologies.length > 0 && (
-          <div className="bg-white rounded-lg shadow-lg p-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
-              <svg
-                className="w-7 h-7 mr-3 text-primary-600"
-                fill="none"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-              </svg>
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 border border-violet-100">
+            <h2 className="text-2xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-violet-900 bg-clip-text text-transparent mb-6 flex items-center">
+              <Code2 className="w-7 h-7 mr-3 text-violet-600" strokeWidth={2.5} />
               Teknolojiler ve Yetenekler
             </h2>
             <div className="flex flex-wrap gap-3">
               {aboutData.technologies.map((tech, index) => (
                 <span
                   key={index}
-                  className="px-4 py-2 bg-primary-100 text-primary-700 rounded-full
-                           font-medium text-sm hover:bg-primary-200 transition-colors"
+                  className="px-5 py-2.5 bg-gradient-to-r from-blue-100 to-violet-100 text-blue-800 rounded-full
+                           font-semibold text-sm hover:from-blue-200 hover:to-violet-200 hover:scale-105
+                           transition-all duration-300 shadow-md hover:shadow-lg cursor-default"
                 >
                   {tech}
                 </span>

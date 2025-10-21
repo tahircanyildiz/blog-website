@@ -19,15 +19,23 @@ function Navbar() {
   };
 
   return (
-    <nav className="bg-white shadow-md sticky top-0 z-50">
+    <nav className="bg-white/80 backdrop-blur-md shadow-lg sticky top-0 z-50 border-b border-blue-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo / Site Adı */}
           <Link
             to="/"
-            className="text-2xl font-bold text-primary-600 hover:text-primary-700 transition-colors"
+            className="flex items-center space-x-3 group"
           >
-            Blog
+            {/* Kendi logonuz - public/logo.png dosyasını kullanacak */}
+            <img
+              src="/logo.png"
+              alt="Logo"
+              className="h-10 w-10 object-contain group-hover:scale-110 transition-transform duration-300"
+            />
+            {/* <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text text-transparent">
+              Portfolio
+            </span> */}
           </Link>
 
           {/* Desktop Menü */}
@@ -35,8 +43,8 @@ function Navbar() {
             <NavLink
               to="/"
               className={({ isActive }) =>
-                `text-gray-700 hover:text-primary-600 transition-colors font-medium ${
-                  isActive ? 'text-primary-600 border-b-2 border-primary-600' : ''
+                `text-gray-700 hover:text-blue-600 transition-colors font-semibold ${
+                  isActive ? 'text-blue-600 border-b-2 border-blue-600' : ''
                 }`
               }
             >
@@ -45,8 +53,8 @@ function Navbar() {
             <NavLink
               to="/about"
               className={({ isActive }) =>
-                `text-gray-700 hover:text-primary-600 transition-colors font-medium ${
-                  isActive ? 'text-primary-600 border-b-2 border-primary-600' : ''
+                `text-gray-700 hover:text-blue-600 transition-colors font-semibold ${
+                  isActive ? 'text-blue-600 border-b-2 border-blue-600' : ''
                 }`
               }
             >
@@ -55,8 +63,8 @@ function Navbar() {
             <NavLink
               to="/blog"
               className={({ isActive }) =>
-                `text-gray-700 hover:text-primary-600 transition-colors font-medium ${
-                  isActive ? 'text-primary-600 border-b-2 border-primary-600' : ''
+                `text-gray-700 hover:text-blue-600 transition-colors font-semibold ${
+                  isActive ? 'text-blue-600 border-b-2 border-blue-600' : ''
                 }`
               }
             >
@@ -65,8 +73,8 @@ function Navbar() {
             <NavLink
               to="/contact"
               className={({ isActive }) =>
-                `text-gray-700 hover:text-primary-600 transition-colors font-medium ${
-                  isActive ? 'text-primary-600 border-b-2 border-primary-600' : ''
+                `text-gray-700 hover:text-blue-600 transition-colors font-semibold ${
+                  isActive ? 'text-blue-600 border-b-2 border-blue-600' : ''
                 }`
               }
             >
@@ -77,7 +85,7 @@ function Navbar() {
           {/* Mobil Menü Butonu */}
           <button
             onClick={toggleMenu}
-            className="md:hidden p-2 rounded-md text-gray-700 hover:text-primary-600 hover:bg-gray-100 transition-colors"
+            className="md:hidden p-2 rounded-xl text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-all"
             aria-label="Menü"
           >
             <svg
@@ -85,7 +93,7 @@ function Navbar() {
               fill="none"
               strokeLinecap="round"
               strokeLinejoin="round"
-              strokeWidth="2"
+              strokeWidth="2.5"
               viewBox="0 0 24 24"
               stroke="currentColor"
             >
@@ -106,8 +114,8 @@ function Navbar() {
                 to="/"
                 onClick={closeMenu}
                 className={({ isActive }) =>
-                  `px-3 py-2 rounded-md text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-colors ${
-                    isActive ? 'bg-primary-50 text-primary-600 font-medium' : ''
+                  `px-4 py-2.5 rounded-xl text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-all font-semibold ${
+                    isActive ? 'bg-gradient-to-r from-blue-50 to-violet-50 text-blue-600 shadow-sm' : ''
                   }`
                 }
               >
@@ -117,8 +125,8 @@ function Navbar() {
                 to="/about"
                 onClick={closeMenu}
                 className={({ isActive }) =>
-                  `px-3 py-2 rounded-md text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-colors ${
-                    isActive ? 'bg-primary-50 text-primary-600 font-medium' : ''
+                  `px-4 py-2.5 rounded-xl text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-all font-semibold ${
+                    isActive ? 'bg-gradient-to-r from-blue-50 to-violet-50 text-blue-600 shadow-sm' : ''
                   }`
                 }
               >
@@ -128,8 +136,8 @@ function Navbar() {
                 to="/blog"
                 onClick={closeMenu}
                 className={({ isActive }) =>
-                  `px-3 py-2 rounded-md text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-colors ${
-                    isActive ? 'bg-primary-50 text-primary-600 font-medium' : ''
+                  `px-4 py-2.5 rounded-xl text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-all font-semibold ${
+                    isActive ? 'bg-gradient-to-r from-blue-50 to-violet-50 text-blue-600 shadow-sm' : ''
                   }`
                 }
               >
@@ -139,8 +147,8 @@ function Navbar() {
                 to="/contact"
                 onClick={closeMenu}
                 className={({ isActive }) =>
-                  `px-3 py-2 rounded-md text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-colors ${
-                    isActive ? 'bg-primary-50 text-primary-600 font-medium' : ''
+                  `px-4 py-2.5 rounded-xl text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-all font-semibold ${
+                    isActive ? 'bg-gradient-to-r from-blue-50 to-violet-50 text-blue-600 shadow-sm' : ''
                   }`
                 }
               >
