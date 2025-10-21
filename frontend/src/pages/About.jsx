@@ -42,12 +42,12 @@ function About() {
       <div className="absolute top-20 right-10 w-72 h-72 bg-gradient-to-r from-violet-400 to-pink-400 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob"></div>
       <div className="absolute bottom-20 left-10 w-72 h-72 bg-gradient-to-r from-blue-400 to-indigo-400 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob animation-delay-2000"></div>
 
-      {/* Background Logo - Fixed Position */}
-      <div className="fixed inset-0 flex items-center justify-center pointer-events-none z-0 ">
+     {/* Background Logo - Fixed Position */}
+      <div className="fixed inset-0 flex items-center justify-center pointer-events-none z-0">
         <img
-          src="/logotcy.png"
+          src="/logo.png"
           alt="Background Logo"
-          className="w-[600px] h-[600px] object-contain opacity-5 select-none"
+          className="w-[800px] h-[800px] object-contain opacity-5 select-none"
         />
       </div>
 

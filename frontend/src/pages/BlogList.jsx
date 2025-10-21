@@ -53,9 +53,9 @@ function BlogList() {
       {/* Background Logo - Fixed Position */}
       <div className="fixed inset-0 flex items-center justify-center pointer-events-none z-0">
         <img
-          src="/logotcy.png"
+          src="/logo.png"
           alt="Background Logo"
-          className="w-[600px] h-[600px] object-contain opacity-5 select-none"
+          className="w-[800px] h-[800px] object-contain opacity-5 select-none"
         />
       </div>
 

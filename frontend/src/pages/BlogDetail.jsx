@@ -4,11 +4,7 @@ import { ArrowLeft, Calendar, Eye, Tag } from 'lucide-react';
 import { getBlogById } from '../services/api';
 import Loading from '../components/Loading';
 import ErrorMessage from '../components/ErrorMessage';
-
-import ReactMarkdown from "react-markdown";
-import rehypeRaw from "rehype-raw";
-import rehypeHighlight from "rehype-highlight";
-import "highlight.js/styles/github-dark.css"; // Kod blokları siyah arka planlı görünür
+import 'react-quill/dist/quill.snow.css'; // Quill stillerini yükle
 
 /**
  * Blog Detay Sayfası
@@ -111,25 +107,20 @@ function BlogDetail() {
               {blog.shortDescription}
             </div>
 
-            {/* Ana İçerik - Markdown Desteği */}
+            {/* Ana İçerik - HTML Content (Quill Editor Output) */}
             <div
-  className="prose prose-lg max-w-none
-    prose-headings:text-gray-900 prose-headings:font-bold
-    prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl
-    prose-p:text-gray-700 prose-p:leading-relaxed prose-p:mb-4
-    prose-a:text-blue-600 prose-a:no-underline hover:prose-a:underline hover:prose-a:text-blue-700
-    prose-strong:text-gray-900 prose-strong:font-semibold
-    prose-code:text-blue-100 prose-code:bg-gray-900 prose-code:px-2 prose-code:py-1 prose-code:rounded-lg prose-code:text-sm
-    prose-pre:bg-gray-900 prose-pre:text-gray-100 prose-pre:rounded-xl prose-pre:p-4 prose-pre:shadow-xl
-    prose-ul:list-disc prose-ol:list-decimal prose-ul:pl-6 prose-ol:pl-6
-    prose-li:text-gray-700 prose-li:mb-2
-    prose-blockquote:border-l-4 prose-blockquote:border-blue-600 prose-blockquote:bg-blue-50 prose-blockquote:text-gray-700 prose-blockquote:pl-4 prose-blockquote:py-2 prose-blockquote:rounded-r-lg
-    prose-img:rounded-xl prose-img:shadow-lg prose-img:my-8">
-
-  <ReactMarkdown rehypePlugins={[rehypeRaw, rehypeHighlight]}>
-    {blog.content}
-  </ReactMarkdown>
-</div>
+              className="ql-editor prose prose-lg max-w-none
+                prose-headings:text-gray-900 prose-headings:font-bold
+                prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl
+                prose-p:text-gray-700 prose-p:leading-relaxed prose-p:mb-4
+                prose-a:text-blue-600 prose-a:no-underline hover:prose-a:underline hover:prose-a:text-blue-700
+                prose-strong:text-gray-900 prose-strong:font-semibold
+                prose-ul:list-disc prose-ol:list-decimal prose-ul:pl-6 prose-ol:pl-6
+                prose-li:text-gray-700 prose-li:mb-2
+                prose-blockquote:border-l-4 prose-blockquote:border-blue-600 prose-blockquote:bg-blue-50 prose-blockquote:text-gray-700 prose-blockquote:pl-4 prose-blockquote:py-2 prose-blockquote:rounded-r-lg
+                prose-img:rounded-xl prose-img:shadow-lg prose-img:my-8"
+              dangerouslySetInnerHTML={{ __html: blog.content }}
+            />
           </div>
         </article>
 

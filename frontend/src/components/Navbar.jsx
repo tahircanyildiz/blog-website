@@ -31,7 +31,7 @@ function Navbar() {
             <img
               src="/logo.png"
               alt="Logo"
-              className="h-12 w-12 object-contain group-hover:scale-110 transition-transform duration-300"
+              className="h-12 w-18 object-contain group-hover:scale-125 transition-transform duration-300"
             />
             {/* <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text text-transparent">
               Portfolio
