@@ -121,10 +121,17 @@ function BlogDetail() {
                 prose-ul:list-disc prose-ol:list-decimal prose-ul:pl-4 sm:prose-ul:pl-6 prose-ol:pl-4 sm:prose-ol:pl-6
                 prose-li:text-gray-700 prose-li:mb-2 prose-li:break-words
                 prose-blockquote:border-l-4 prose-blockquote:border-blue-600 prose-blockquote:bg-blue-50 prose-blockquote:text-gray-700 prose-blockquote:pl-3 sm:prose-blockquote:pl-4 prose-blockquote:py-2 prose-blockquote:rounded-r-lg prose-blockquote:break-words
-                prose-img:rounded-xl prose-img:shadow-lg prose-img:my-6 sm:prose-img:my-8 prose-img:w-full prose-img:h-auto
+                prose-img:rounded-xl prose-img:shadow-lg prose-img:my-6 sm:prose-img:my-8 prose-img:w-full prose-img:h-auto prose-img:select-none prose-img:pointer-events-none
                 prose-code:text-sm prose-code:break-words
-                prose-pre:overflow-x-auto prose-pre:text-sm"
+                prose-pre:overflow-x-auto prose-pre:text-sm
+                [&_img]:select-none [&_img]:pointer-events-none [&_img]:draggable-[false]"
               dangerouslySetInnerHTML={{ __html: blog.content }}
+              onContextMenu={(e) => {
+                if (e.target.tagName === 'IMG') {
+                  e.preventDefault();
+                  return false;
+                }
+              }}
             />
           </div>
         </article>

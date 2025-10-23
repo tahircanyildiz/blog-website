@@ -209,4 +209,54 @@ body {
   border-radius: 0.75rem;
   margin: 1.5rem 0;
   box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+  /* Görsel koruma */
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  pointer-events: none;
+  -webkit-user-drag: none;
+  -khtml-user-drag: none;
+  -moz-user-drag: none;
+  -o-user-drag: none;
+}
+
+/* Blog içeriği görsel koruması */
+.ql-editor img::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: transparent;
+  cursor: default;
+}
+
+/* Tüm blog içeriği için sağ tık engeli */
+.ql-editor {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Metin seçimine izin ver ama görsellere değil */
+.ql-editor p,
+.ql-editor h1,
+.ql-editor h2,
+.ql-editor h3,
+.ql-editor h4,
+.ql-editor h5,
+.ql-editor h6,
+.ql-editor li,
+.ql-editor span,
+.ql-editor a,
+.ql-editor code {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
 }
