@@ -45,48 +45,43 @@ function BlogList() {
   if (error) return <div className="container mx-auto px-4 py-8"><ErrorMessage message={error} /></div>;
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-blue-50 via-white to-violet-50 py-12">
+    <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-blue-50 via-white to-violet-50 py-6 sm:py-12">
       {/* Decorative gradient shapes */}
-      <div className="absolute top-40 right-20 w-72 h-72 bg-gradient-to-r from-violet-400 to-pink-400 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob"></div>
-      <div className="absolute bottom-40 left-20 w-72 h-72 bg-gradient-to-r from-blue-400 to-indigo-400 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob animation-delay-4000"></div>
+      <div className="absolute top-40 right-20 w-48 h-48 sm:w-72 sm:h-72 bg-gradient-to-r from-violet-400 to-pink-400 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob"></div>
+      <div className="absolute bottom-40 left-20 w-48 h-48 sm:w-72 sm:h-72 bg-gradient-to-r from-blue-400 to-indigo-400 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob animation-delay-4000"></div>
 
       {/* Background Logo - Fixed Position */}
       <div className="fixed inset-0 flex items-center justify-center pointer-events-none z-0">
         <img
           src="/logo.png"
           alt="Background Logo"
-          className="w-[800px] h-[800px] object-contain opacity-5 select-none"
+          className="w-[400px] h-[400px] sm:w-[800px] sm:h-[800px] object-contain opacity-5 select-none"
         />
       </div>
 
       <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Başlık */}
-        <div className="mb-12 text-center">
+        <div className="mb-8 sm:mb-12 text-center">
           <div className="inline-flex items-center justify-center mb-4">
-            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-violet-600 flex items-center justify-center shadow-lg">
-              <BookOpen className="w-8 h-8 text-white" strokeWidth={2.5} />
+            <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-blue-500 to-violet-600 flex items-center justify-center shadow-lg">
+              <BookOpen className="w-6 h-6 sm:w-8 sm:h-8 text-white" strokeWidth={2.5} />
             </div>
           </div>
-          <h1 className="text-5xl md:text-12xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-violet-900 bg-clip-text text-transparent mb-4">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-violet-900 bg-clip-text text-transparent mb-4 break-words px-2">
             Blog Yazıları
-
-<br /><br />
           </h1>
-          {/* <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto">
-            Teknoloji, yazılım ve deneyimlerim hakkında yazılar
-          </p> */}
         </div>
 
         {/* Blog Listesi */}
         {blogs.length === 0 ? (
-          <div className="text-center py-12">
-            <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-gradient-to-br from-blue-100 to-violet-100 flex items-center justify-center">
-              <FileText className="w-12 h-12 text-blue-500" strokeWidth={2} />
+          <div className="text-center py-8 sm:py-12">
+            <div className="w-20 h-20 sm:w-24 sm:h-24 mx-auto mb-6 rounded-full bg-gradient-to-br from-blue-100 to-violet-100 flex items-center justify-center">
+              <FileText className="w-10 h-10 sm:w-12 sm:h-12 text-blue-500" strokeWidth={2} />
             </div>
-            <p className="text-xl text-gray-600">Henüz blog yazısı bulunmuyor</p>
+            <p className="text-lg sm:text-xl text-gray-600 px-4">Henüz blog yazısı bulunmuyor</p>
           </div>
         ) : (
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 sm:gap-6 md:gap-8 md:grid-cols-2 lg:grid-cols-3">
             {blogs.map((blog) => (
               <Link
                 key={blog._id}
@@ -95,14 +90,14 @@ function BlogList() {
                          transform hover:-translate-y-2 overflow-hidden group border border-blue-100"
               >
                 {/* Blog Kartı */}
-                <div className="p-6">
+                <div className="p-4 sm:p-6">
                   {/* Başlık */}
-                  <h2 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors line-clamp-2">
+                  <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors line-clamp-2 break-words">
                     {blog.title}
                   </h2>
 
                   {/* Kısa Açıklama */}
-                  <p className="text-gray-600 mb-4 line-clamp-3 leading-relaxed">
+                  <p className="text-sm sm:text-base text-gray-600 mb-4 line-clamp-3 leading-relaxed break-words">
                     {blog.shortDescription}
                   </p>
 
@@ -112,7 +107,7 @@ function BlogList() {
                       {blog.tags.slice(0, 3).map((tag, index) => (
                         <span
                           key={index}
-                          className="px-3 py-1 bg-gradient-to-r from-blue-100 to-violet-100 text-blue-700 text-xs rounded-full font-semibold"
+                          className="px-2 py-1 sm:px-3 sm:py-1 bg-gradient-to-r from-blue-100 to-violet-100 text-blue-700 text-xs rounded-full font-semibold break-words"
                         >
                           {tag}
                         </span>
@@ -121,15 +116,15 @@ function BlogList() {
                   )}
 
                   {/* Alt Bilgiler */}
-                  <div className="flex items-center justify-between text-sm text-gray-500 pt-4 border-t border-gray-200">
+                  <div className="flex items-center justify-between text-xs sm:text-sm text-gray-500 pt-4 border-t border-gray-200 gap-2">
                     <div className="flex items-center font-medium">
-                      <Calendar className="w-4 h-4 mr-1.5" />
-                      {formatDate(blog.publishDate)}
+                      <Calendar className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-1.5 flex-shrink-0" />
+                      <span className="truncate">{formatDate(blog.publishDate)}</span>
                     </div>
 
                     {/* Görüntülenme Sayısı */}
-                    <div className="flex items-center font-medium">
-                      <Eye className="w-4 h-4 mr-1.5" />
+                    <div className="flex items-center font-medium flex-shrink-0">
+                      <Eye className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-1.5" />
                       {blog.viewCount || 0}
                     </div>
                   </div>

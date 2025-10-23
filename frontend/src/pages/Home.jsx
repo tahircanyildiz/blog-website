@@ -32,26 +32,26 @@ function Home() {
   return (
     <div className="relative flex items-center justify-center min-h-[calc(100vh-80px)] overflow-hidden bg-gradient-to-br from-blue-50 via-white to-violet-50">
       {/* Decorative gradient shapes */}
-      <div className="absolute top-20 left-10 w-72 h-72 bg-gradient-to-r from-blue-400 to-violet-400 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
-      <div className="absolute top-40 right-20 w-72 h-72 bg-gradient-to-r from-violet-400 to-pink-400 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
-      <div className="absolute -bottom-8 left-1/3 w-72 h-72 bg-gradient-to-r from-blue-300 to-indigo-400 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-4000"></div>
+      <div className="absolute top-20 left-10 w-48 h-48 sm:w-72 sm:h-72 bg-gradient-to-r from-blue-400 to-violet-400 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
+      <div className="absolute top-40 right-20 w-48 h-48 sm:w-72 sm:h-72 bg-gradient-to-r from-violet-400 to-pink-400 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
+      <div className="absolute -bottom-8 left-1/3 w-48 h-48 sm:w-72 sm:h-72 bg-gradient-to-r from-blue-300 to-indigo-400 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-4000"></div>
 
       {/* Main content */}
-      <div className="relative z-10 max-w-4xl mx-auto px-6 py-16 text-center">
+      <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-16 text-center">
         {/* Avatar/Icon */}
-        <div className="mb-8 flex justify-center">
-          <div className="w-24 h-24 rounded-full bg-gradient-to-br from-blue-500 to-violet-600 flex items-center justify-center shadow-lg ring-4 ring-white">
-            <Code2 className="w-12 h-12 text-white" strokeWidth={2.5} />
+        <div className="mb-6 sm:mb-8 flex justify-center">
+          <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-br from-blue-500 to-violet-600 flex items-center justify-center shadow-lg ring-4 ring-white">
+            <Code2 className="w-10 h-10 sm:w-12 sm:h-12 text-white" strokeWidth={2.5} />
           </div>
         </div>
 
         {/* Heading */}
-        <div className="space-y-4 mb-12">
-          <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight bg-gradient-to-r from-gray-900 via-blue-800 to-violet-900 bg-clip-text text-transparent">
+        <div className="space-y-3 sm:space-y-4 mb-8 sm:mb-12">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold tracking-tight bg-gradient-to-r from-gray-900 via-blue-800 to-violet-900 bg-clip-text text-transparent break-words px-2">
             Merhaba, Ben <br></br>
             {aboutData.name}
           </h1>
-          <p className="text-lg md:text-xl lg:text-2xl text-gray-600 max-w-2xl mx-auto">
+          <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-600 max-w-2xl mx-auto px-4 leading-relaxed">
             {aboutData.title} <br></br><br></br>
             Kişisel web siteme hoş geldiniz. Burada yazılım geliştirme, teknoloji ve deneyimlerim hakkında yazılar paylaşıyorum.
           </p>
