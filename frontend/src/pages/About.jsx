@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { User, Briefcase, Code2, Download } from 'lucide-react';
+import { Briefcase, Code2, Download } from 'lucide-react';
 import { getAbout } from '../services/api';
 import Loading from '../components/Loading';
 import ErrorMessage from '../components/ErrorMessage';
@@ -55,8 +55,12 @@ function About() {
         {/* Başlık Bölümü */}
         <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 mb-8 border border-blue-100">
           <div className="flex items-center gap-4 mb-6">
-            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-violet-600 flex items-center justify-center shadow-lg">
-              <User className="w-8 h-8 text-white" strokeWidth={2.5} />
+            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-violet-600 flex items-center justify-center shadow-lg overflow-hidden">
+              <img
+                src="/mecvlogo.png"
+                alt="Profile"
+                className="w-full h-full object-cover"
+              />
             </div>
             <div className="flex-1">
               <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-violet-900 bg-clip-text text-transparent">
