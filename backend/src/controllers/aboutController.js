@@ -2,6 +2,7 @@ const About = require('../models/About');
 const { validationResult } = require('express-validator');
 const fs = require('fs');
 const path = require('path');
+const { cloudinary } = require('../config/cloudinary');
 
 /**
  * @desc    Hakkımda bilgisini getir
@@ -88,7 +89,7 @@ exports.updateAbout = async (req, res, next) => {
 };
 
 /**
- * @desc    CV dosyasını yükle
+ * @desc    CV dosyasını yükle (Cloudinary)
  * @route   POST /api/about/cv
  * @access  Private (Admin)
  */
@@ -111,31 +112,45 @@ exports.uploadCV = async (req, res, next) => {
       });
     }
 
-    // Eski CV dosyasını sil
-    if (about.cvFile) {
-      const oldFilePath = path.join(__dirname, '../../uploads', about.cvFile);
-      if (fs.existsSync(oldFilePath)) {
-        fs.unlinkSync(oldFilePath);
+    // Eski CV dosyasını Cloudinary'den sil
+    if (about.cvFile && about.cvFile.includes('cloudinary')) {
+      try {
+        // Cloudinary public_id'yi çıkar
+        const urlParts = about.cvFile.split('/');
+        const fileName = urlParts[urlParts.length - 1].split('.')[0];
+        const publicId = `cv-files/${fileName}`;
+        await cloudinary.uploader.destroy(publicId, { resource_type: 'raw' });
+      } catch (err) {
+        console.error('Eski CV silinirken hata:', err);
       }
     }
 
-    // Yeni CV dosya yolunu kaydet (sadece dosya adı)
-    about.cvFile = 'cv/' + req.file.filename;
+    // Yeni CV dosya URL'sini kaydet (Cloudinary URL)
+    console.log('📁 Uploaded file info:', {
+      path: req.file.path,
+      filename: req.file.filename,
+      originalname: req.file.originalname
+    });
+
+    about.cvFile = req.file.path; // Cloudinary URL
     await about.save();
 
     res.status(200).json({
       success: true,
       message: 'CV başarıyla yüklendi',
       data: {
-        cvFile: about.cvFile
+        cvFile: about.cvFile,
+        cvUrl: req.file.path
       }
     });
   } catch (error) {
-    // Hata durumunda yüklenen dosyayı sil
-    if (req.file) {
-      const filePath = path.join(__dirname, '../../uploads/cv', req.file.filename);
-      if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath);
+    // Hata durumunda yüklenen dosyayı Cloudinary'den sil
+    if (req.file && req.file.filename) {
+      try {
+        const publicId = `cv-files/${req.file.filename}`;
+        await cloudinary.uploader.destroy(publicId, { resource_type: 'raw' });
+      } catch (err) {
+        console.error('CV silme hatası:', err);
       }
     }
     next(error);
@@ -143,7 +158,7 @@ exports.uploadCV = async (req, res, next) => {
 };
 
 /**
- * @desc    CV dosyasını sil
+ * @desc    CV dosyasını sil (Cloudinary)
  * @route   DELETE /api/about/cv
  * @access  Private (Admin)
  */
@@ -158,10 +173,22 @@ exports.deleteCV = async (req, res, next) => {
       });
     }
 
-    // CV dosyasını sil
-    const filePath = path.join(__dirname, '../../uploads', about.cvFile);
-    if (fs.existsSync(filePath)) {
-      fs.unlinkSync(filePath);
+    // CV dosyasını Cloudinary'den sil
+    if (about.cvFile.includes('cloudinary')) {
+      try {
+        const urlParts = about.cvFile.split('/');
+        const fileName = urlParts[urlParts.length - 1].split('.')[0];
+        const publicId = `cv-files/${fileName}`;
+        await cloudinary.uploader.destroy(publicId, { resource_type: 'raw' });
+      } catch (err) {
+        console.error('Cloudinary silme hatası:', err);
+      }
+    } else {
+      // Eski lokal dosyaları sil (geriye dönük uyumluluk)
+      const filePath = path.join(__dirname, '../../uploads', about.cvFile);
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+      }
     }
 
     // Veritabanından CV referansını sil
@@ -171,6 +198,75 @@ exports.deleteCV = async (req, res, next) => {
     res.status(200).json({
       success: true,
       message: 'CV başarıyla silindi'
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @desc    CV dosyasını indir
+ * @route   GET /api/about/cv/download
+ * @access  Public
+ */
+exports.downloadCV = async (req, res, next) => {
+  try {
+    const about = await About.findOne();
+
+    if (!about || !about.cvFile) {
+      return res.status(404).json({
+        success: false,
+        message: 'CV dosyası bulunamadı'
+      });
+    }
+
+    // Eğer Cloudinary URL ise, public ID'yi çıkar ve signed URL oluştur
+    if (about.cvFile.includes('cloudinary')) {
+      const urlParts = about.cvFile.split('/');
+      const uploadIndex = urlParts.indexOf('upload');
+      // upload'dan sonraki kısmı al ve version numarasını atla (v1761433857 gibi)
+      const pathAfterUpload = urlParts.slice(uploadIndex + 1);
+
+      // Eğer ilk eleman version ise (v ile başlıyorsa), onu atla
+      const startIndex = pathAfterUpload[0].startsWith('v') ? 1 : 0;
+      const publicId = pathAfterUpload.slice(startIndex).join('/').replace(/\.[^/.]+$/, ''); // Extension'ı kaldır
+
+      // Signed URL oluştur (raw dosyalar için format belirtmiyoruz)
+      const signedUrl = cloudinary.url(publicId, {
+        resource_type: 'raw',
+        type: 'upload',
+        sign_url: true,
+        secure: true
+      });
+
+      console.log('Public ID:', publicId);
+      console.log('Signed URL:', signedUrl);
+
+      // Dosyayı fetch et ve doğru header'larla serve et
+      const https = require('https');
+      https.get(signedUrl, (fileStream) => {
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', 'inline; filename="CV.pdf"'); // inline: tarayıcıda aç, attachment: indir
+        fileStream.pipe(res);
+      }).on('error', (err) => {
+        console.error('Dosya indirme hatası:', err);
+        return res.status(500).json({
+          success: false,
+          message: 'CV indirilemedi'
+        });
+      });
+      return;
+    }
+
+    // Eski lokal dosyalar için (geriye dönük uyumluluk)
+    const filePath = path.join(__dirname, '../../uploads', about.cvFile);
+    if (fs.existsSync(filePath)) {
+      return res.download(filePath);
+    }
+
+    res.status(404).json({
+      success: false,
+      message: 'CV dosyası bulunamadı'
     });
   } catch (error) {
     next(error);

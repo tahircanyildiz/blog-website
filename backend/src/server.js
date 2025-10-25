@@ -5,6 +5,13 @@ const connectDB = require('./config/db');
 // Ortam değişkenlerini yükle
 dotenv.config();
 
+// Cloudinary config kontrolü (debug için)
+console.log('=== Cloudinary Configuration Check ===');
+console.log('Cloud Name:', process.env.CLOUDINARY_CLOUD_NAME ? '✓ Loaded' : '✗ MISSING');
+console.log('API Key:', process.env.CLOUDINARY_API_KEY ? '✓ Loaded' : '✗ MISSING');
+console.log('API Secret:', process.env.CLOUDINARY_API_SECRET ? '✓ Loaded' : '✗ MISSING');
+console.log('======================================\n');
+
 // MongoDB bağlantısını kur
 connectDB();
 

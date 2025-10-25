@@ -78,8 +78,9 @@ function About() {
             {/* CV İndirme Butonu - Mobilde tam genişlik */}
             {aboutData.cvFile && (
               <a
-                href={`${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000'}/uploads/${aboutData.cvFile}`}
-                download
+                href={`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/about/cv/download`}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition-all duration-300 shadow-lg hover:shadow-xl group"
               >
                 <Download className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform duration-300" />

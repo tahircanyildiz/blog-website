@@ -1,39 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const { body } = require('express-validator');
-const multer = require('multer');
-const path = require('path');
 const { protect, admin } = require('../middleware/auth');
-const { getAbout, updateAbout, uploadCV, deleteCV } = require('../controllers/aboutController');
-
-// Multer configuration for CV upload
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'uploads/cv/');
-  },
-  filename: function (req, file, cb) {
-    // Unique filename: timestamp + original extension
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, 'cv-' + uniqueSuffix + path.extname(file.originalname));
-  }
-});
-
-// File filter - only PDF files
-const fileFilter = (req, file, cb) => {
-  if (file.mimetype === 'application/pdf') {
-    cb(null, true);
-  } else {
-    cb(new Error('Sadece PDF dosyaları yüklenebilir'), false);
-  }
-};
-
-const upload = multer({
-  storage: storage,
-  fileFilter: fileFilter,
-  limits: {
-    fileSize: 5 * 1024 * 1024 // 5MB limit
-  }
-});
+const { getAbout, updateAbout, uploadCV, deleteCV, downloadCV } = require('../controllers/aboutController');
+const { uploadCV: uploadCVMiddleware } = require('../config/cloudinary');
 
 /**
  * @route   GET /api/about
@@ -57,10 +27,10 @@ router.put('/', protect, admin, [
 
 /**
  * @route   POST /api/about/cv
- * @desc    CV dosyası yükle (Admin)
+ * @desc    CV dosyası yükle - Cloudinary (Admin)
  * @access  Private/Admin
  */
-router.post('/cv', protect, admin, upload.single('cv'), uploadCV);
+router.post('/cv', protect, admin, uploadCVMiddleware.single('cv'), uploadCV);
 
 /**
  * @route   DELETE /api/about/cv
@@ -68,5 +38,12 @@ router.post('/cv', protect, admin, upload.single('cv'), uploadCV);
  * @access  Private/Admin
  */
 router.delete('/cv', protect, admin, deleteCV);
+
+/**
+ * @route   GET /api/about/cv/download
+ * @desc    CV dosyasını indir
+ * @access  Public
+ */
+router.get('/cv/download', downloadCV);
 
 module.exports = router;
