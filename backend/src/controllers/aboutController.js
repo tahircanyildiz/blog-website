@@ -115,10 +115,12 @@ exports.uploadCV = async (req, res, next) => {
     // Eski CV dosyasını Cloudinary'den sil
     if (about.cvFile && about.cvFile.includes('cloudinary')) {
       try {
-        // Cloudinary public_id'yi çıkar
+        // Cloudinary public_id'yi çıkar (.pdf uzantısıyla birlikte)
         const urlParts = about.cvFile.split('/');
-        const fileName = urlParts[urlParts.length - 1].split('.')[0];
-        const publicId = `cv-files/${fileName}`;
+        const uploadIndex = urlParts.indexOf('upload');
+        const pathAfterUpload = urlParts.slice(uploadIndex + 1);
+        const startIndex = pathAfterUpload[0].startsWith('v') ? 1 : 0;
+        const publicId = pathAfterUpload.slice(startIndex).join('/');
         await cloudinary.uploader.destroy(publicId, { resource_type: 'raw' });
       } catch (err) {
         console.error('Eski CV silinirken hata:', err);
@@ -177,8 +179,10 @@ exports.deleteCV = async (req, res, next) => {
     if (about.cvFile.includes('cloudinary')) {
       try {
         const urlParts = about.cvFile.split('/');
-        const fileName = urlParts[urlParts.length - 1].split('.')[0];
-        const publicId = `cv-files/${fileName}`;
+        const uploadIndex = urlParts.indexOf('upload');
+        const pathAfterUpload = urlParts.slice(uploadIndex + 1);
+        const startIndex = pathAfterUpload[0].startsWith('v') ? 1 : 0;
+        const publicId = pathAfterUpload.slice(startIndex).join('/');
         await cloudinary.uploader.destroy(publicId, { resource_type: 'raw' });
       } catch (err) {
         console.error('Cloudinary silme hatası:', err);
@@ -220,33 +224,27 @@ exports.downloadCV = async (req, res, next) => {
       });
     }
 
-    // Eğer Cloudinary URL ise, public ID'yi çıkar ve signed URL oluştur
+    // Eğer Cloudinary URL ise, direkt URL'i kullan (public erişim)
     if (about.cvFile.includes('cloudinary')) {
-      const urlParts = about.cvFile.split('/');
-      const uploadIndex = urlParts.indexOf('upload');
-      // upload'dan sonraki kısmı al ve version numarasını atla (v1761433857 gibi)
-      const pathAfterUpload = urlParts.slice(uploadIndex + 1);
+      // Cloudinary URL'i zaten database'de var, direkt kullan
+      const cloudinaryUrl = about.cvFile;
 
-      // Eğer ilk eleman version ise (v ile başlıyorsa), onu atla
-      const startIndex = pathAfterUpload[0].startsWith('v') ? 1 : 0;
-      const publicId = pathAfterUpload.slice(startIndex).join('/').replace(/\.[^/.]+$/, ''); // Extension'ı kaldır
-
-      // Signed URL oluştur (raw dosyalar için format belirtmiyoruz)
-      const signedUrl = cloudinary.url(publicId, {
-        resource_type: 'raw',
-        type: 'upload',
-        sign_url: true,
-        secure: true
-      });
-
-      console.log('Public ID:', publicId);
-      console.log('Signed URL:', signedUrl);
+      console.log('Cloudinary URL:', cloudinaryUrl);
 
       // Dosyayı fetch et ve doğru header'larla serve et
       const https = require('https');
-      https.get(signedUrl, (fileStream) => {
+      https.get(cloudinaryUrl, (fileStream) => {
+        // Eğer response 401/404 ise hata ver
+        if (fileStream.statusCode !== 200) {
+          console.error('Cloudinary HTTP Error:', fileStream.statusCode);
+          return res.status(fileStream.statusCode).json({
+            success: false,
+            message: 'CV dosyasına erişilemiyor'
+          });
+        }
+
         res.setHeader('Content-Type', 'application/pdf');
-        res.setHeader('Content-Disposition', 'inline; filename="CV.pdf"'); // inline: tarayıcıda aç, attachment: indir
+        res.setHeader('Content-Disposition', 'inline; filename="CV.pdf"');
         fileStream.pipe(res);
       }).on('error', (err) => {
         console.error('Dosya indirme hatası:', err);

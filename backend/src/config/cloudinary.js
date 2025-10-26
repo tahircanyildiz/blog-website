@@ -23,11 +23,12 @@ const cvStorage = new CloudinaryStorage({
   params: {
     folder: 'cv-files',
     resource_type: 'raw',
+    type: 'upload', // 'upload' type = public access
     allowed_formats: ['pdf'],
     public_id: (req, file) => {
       const timestamp = Date.now();
       const randomString = Math.random().toString(36).substring(7);
-      return `cv-${timestamp}-${randomString}`;
+      return `cv-${timestamp}-${randomString}.pdf`; // .pdf uzantısı ekledik
     }
   }
 });
