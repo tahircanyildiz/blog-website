@@ -15,7 +15,7 @@ function ProtectedRoute({ children }) {
 
   if (!user) {
     // Giriş yapılmamışsa login sayfasına yönlendir
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/mrpurposeless/login" replace />;
   }
 
   if (!isAdmin()) {

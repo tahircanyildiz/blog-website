@@ -12,20 +12,20 @@ function AdminLayout() {
 
   const handleLogout = () => {
     logout();
-    navigate('/login');
+    navigate('/mrpurposeless/login');
   };
 
   const menuItems = [
-    { path: '/admin', label: 'Dashboard', icon: '📊' },
-    { path: '/admin/blogs', label: 'Blog Yönetimi', icon: '📝' },
-    { path: '/admin/contacts', label: 'Mesajlar', icon: '✉️' },
-    { path: '/admin/about', label: 'Hakkımda', icon: '👤' },
-    { path: '/admin/social-media', label: 'Sosyal Medya', icon: '📱' },
-    { path: '/admin/contact-info', label: 'İletişim Bilgileri', icon: '📞' },
+    { path: '/mrpurposeless', label: 'Dashboard', icon: '📊' },
+    { path: '/mrpurposeless/blogs', label: 'Blog Yönetimi', icon: '📝' },
+    { path: '/mrpurposeless/contacts', label: 'Mesajlar', icon: '✉️' },
+    { path: '/mrpurposeless/about', label: 'Hakkımda', icon: '👤' },
+    { path: '/mrpurposeless/social-media', label: 'Sosyal Medya', icon: '📱' },
+    { path: '/mrpurposeless/contact-info', label: 'İletişim Bilgileri', icon: '📞' },
   ];
 
   const isActive = (path) => {
-    if (path === '/admin') {
+    if (path === '/mrpurposeless') {
       return location.pathname === path;
     }
     return location.pathname.startsWith(path);

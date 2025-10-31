@@ -22,7 +22,7 @@ function Login() {
     const result = await login(email, password);
 
     if (result.success) {
-      navigate('/admin');
+      navigate('/mrpurposeless');
     } else {
       setError(result.error);
     }

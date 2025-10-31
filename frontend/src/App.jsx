@@ -89,12 +89,12 @@ function App() {
             }
           />
 
-          {/* Login Route */}
-          <Route path="/login" element={<Login />} />
+          {/* Login Route - Custom path */}
+          <Route path="/mrpurposeless/login" element={<Login />} />
 
-          {/* Admin Routes - Protected */}
+          {/* Admin Routes - Protected with custom path */}
           <Route
-            path="/admin"
+            path="/mrpurposeless"
             element={
               <ProtectedRoute>
                 <AdminLayout />
