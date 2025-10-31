@@ -50,7 +50,18 @@ app.use((req, res, next) => {
     message: 'Route bulunamadı'
   });
 });
+app.get('/ping', (req, res) => {
+  // opsiyonel: secret kontrolü
+  const secret = process.env.PING_SECRET;
+  const token = req.query.token || req.headers['x-ping-token'];
+  if (secret && token !== secret) {
+    return res.status(401).json({ ok: false, msg: 'unauthorized' });
+  }
 
+  // opsiyonel: basit health check - DB bağlantısını kontrol edebilirsin
+  // örn: if (mongoose.connection.readyState !== 1) return res.status(503).json({ ok: false });
+  return res.status(200).json({ ok: true, ts: Date.now() });
+});
 // Global error handler middleware (en sonda olmalı)
 app.use(errorHandler);
 
