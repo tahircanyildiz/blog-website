@@ -8,10 +8,8 @@ import { getAbout } from '../services/api';
  * Modern tasarım ile kısa tanıtım ve sayfalara yönlendirme butonları
  */
 function Home() {
-  const [aboutData, setAboutData] = useState({
-    name: 'Adınız',
-    title: 'Developer'
-  });
+  const [aboutData, setAboutData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchAboutData = async () => {
@@ -23,6 +21,12 @@ function Home() {
         });
       } catch (error) {
         console.error('Failed to fetch about data:', error);
+        setAboutData({
+          name: 'Adınız',
+          title: 'Developer'
+        });
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -47,14 +51,30 @@ function Home() {
 
         {/* Heading */}
         <div className="space-y-3 sm:space-y-4 mb-8 sm:mb-12">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold tracking-tight bg-gradient-to-r from-gray-900 via-blue-800 to-violet-900 bg-clip-text text-transparent break-words px-2">
-            Merhaba, Ben <br></br>
-            {aboutData.name}
-          </h1>
-          <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-600 max-w-2xl mx-auto px-4 leading-relaxed">
-            {aboutData.title} <br></br><br></br>
-            Kişisel web siteme hoş geldiniz. Burada yazılım geliştirme, teknoloji ve deneyimlerim hakkında yazılar paylaşıyorum.
-          </p>
+          {loading ? (
+            <>
+              {/* Skeleton loader for name */}
+              <div className="flex flex-col items-center gap-3">
+                <div className="h-8 sm:h-10 md:h-12 lg:h-14 w-48 sm:w-64 bg-gray-200 rounded-lg animate-pulse"></div>
+                <div className="h-12 sm:h-14 md:h-16 lg:h-20 w-64 sm:w-80 md:w-96 bg-gray-300 rounded-lg animate-pulse"></div>
+              </div>
+              {/* Skeleton loader for title */}
+              <div className="flex justify-center">
+                <div className="h-6 sm:h-7 md:h-8 w-48 sm:w-64 bg-gray-200 rounded-lg animate-pulse mt-4"></div>
+              </div>
+            </>
+          ) : (
+            <>
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold tracking-tight bg-gradient-to-r from-gray-900 via-blue-800 to-violet-900 bg-clip-text text-transparent break-words px-2">
+                Merhaba, Ben <br></br>
+                {aboutData?.name}
+              </h1>
+              <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-600 max-w-2xl mx-auto px-4 leading-relaxed">
+                {aboutData?.title} <br></br><br></br>
+                Kişisel web siteme hoş geldiniz. Burada yazılım geliştirme, teknoloji ve deneyimlerim hakkında yazılar paylaşıyorum.
+              </p>
+            </>
+          )}
         </div>
 
         {/* Navigation buttons */}
