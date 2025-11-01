@@ -128,7 +128,7 @@ function BlogsManagement() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <Link
-                      to={`/admin/blogs/edit/${blog._id}`}
+                      to={`/mrpurposeless/blogs/edit/${blog._id}`}
                       className="text-indigo-600 hover:text-indigo-900 mr-4"
                     >
                       Düzenle

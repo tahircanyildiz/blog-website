@@ -108,7 +108,7 @@ function BlogForm() {
         alert('Blog başarıyla oluşturuldu');
       }
 
-      navigate('/admin/blogs');
+      navigate('/mrpurposeless/blogs');
     } catch (err) {
       setError(err.response?.data?.message || 'Bir hata oluştu');
       console.error(err);
@@ -231,7 +231,7 @@ function BlogForm() {
         <div className="flex justify-end gap-3 bg-white shadow-lg rounded-2xl p-6 border border-blue-100">
           <button
             type="button"
-            onClick={() => navigate('/admin/blogs')}
+            onClick={() => navigate('/mrpurposeless/blogs')}
             className="px-6 py-3 border-2 border-gray-300 rounded-xl text-gray-700 font-semibold hover:bg-gray-50 transition-all"
           >
             İptal
