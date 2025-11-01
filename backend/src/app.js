@@ -15,8 +15,8 @@ const app = express();
 
 // Middleware'ler
 app.use(cors()); // CORS aktif
-app.use(express.json()); // JSON body parser
-app.use(express.urlencoded({ extended: true })); // URL-encoded body parser
+app.use(express.json({ limit: '50mb' })); // JSON body parser with 50MB limit
+app.use(express.urlencoded({ extended: true, limit: '50mb' })); // URL-encoded body parser with 50MB limit
 
 // Static file serving for uploads
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
