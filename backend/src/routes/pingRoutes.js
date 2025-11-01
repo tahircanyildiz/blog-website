@@ -7,12 +7,7 @@ const router = express.Router();
  * @access  Public
  */
 router.get('/', (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: 'Server is awake!',
-    timestamp: new Date().toISOString(),
-    uptime: process.uptime()
-  });
+  res.status(200).send('OK');
 });
 
 module.exports = router;
