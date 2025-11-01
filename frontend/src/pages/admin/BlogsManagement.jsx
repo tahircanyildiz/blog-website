@@ -56,7 +56,7 @@ function BlogsManagement() {
       <div className="mb-6 flex justify-between items-center">
         <h1 className="text-3xl font-bold text-gray-900">Blog Yönetimi</h1>
         <Link
-          to="/admin/blogs/new"
+          to="/mrpurposeless/blogs/new"
           className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
         >
           + Yeni Blog Ekle
@@ -76,7 +76,7 @@ function BlogsManagement() {
           <div className="text-center py-12">
             <p className="text-gray-500 text-lg">Henüz blog yazısı yok</p>
             <Link
-              to="/admin/blogs/new"
+              to="/mrpurposeless/blogs/new"
               className="mt-4 inline-block px-6 py-3 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
             >
               İlk Blog Yazısını Oluştur

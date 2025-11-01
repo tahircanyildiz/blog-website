@@ -119,7 +119,7 @@ function Dashboard() {
         <div className="bg-white shadow rounded-lg p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Link
-              to="/admin/blogs/new"
+              to="/mrpurposeless/blogs/new"
               className="flex items-center justify-center px-6 py-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-indigo-500 transition-colors"
             >
               <span className="text-2xl mr-2">➕</span>
