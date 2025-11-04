@@ -29,7 +29,7 @@ function Navbar() {
           >
             {/* Kendi logonuz - public/logo.png dosyasını kullanacak */}
             <img
-              src="/logo.png"
+              src="/logonew.png"
               alt="Logo"
               className="h-12 w-18 object-contain group-hover:scale-125 transition-transform duration-300"
             />
