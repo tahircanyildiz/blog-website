@@ -43,6 +43,10 @@ const aboutSchema = new mongoose.Schema({
   technologies: [{
     type: String
   }],
+  profileImage: {
+    type: String,
+    default: null // Cloudinary URL
+  },
   cvFile: {
     type: String,
     default: null

@@ -2,8 +2,8 @@ const express = require('express');
 const router = express.Router();
 const { body } = require('express-validator');
 const { protect, admin } = require('../middleware/auth');
-const { getAbout, updateAbout, uploadCV, deleteCV, downloadCV } = require('../controllers/aboutController');
-const { uploadCV: uploadCVMiddleware } = require('../config/cloudinary');
+const { getAbout, updateAbout, uploadCV, deleteCV, downloadCV, uploadProfileImage, deleteProfileImage } = require('../controllers/aboutController');
+const { uploadCV: uploadCVMiddleware, uploadProfileImage: uploadProfileImageMiddleware } = require('../config/cloudinary');
 
 /**
  * @route   GET /api/about
@@ -45,5 +45,19 @@ router.delete('/cv', protect, admin, deleteCV);
  * @access  Public
  */
 router.get('/cv/download', downloadCV);
+
+/**
+ * @route   POST /api/about/profile-image
+ * @desc    Profil resmi yükle - Cloudinary (Admin)
+ * @access  Private/Admin
+ */
+router.post('/profile-image', protect, admin, uploadProfileImageMiddleware.single('profileImage'), uploadProfileImage);
+
+/**
+ * @route   DELETE /api/about/profile-image
+ * @desc    Profil resmini sil (Admin)
+ * @access  Private/Admin
+ */
+router.delete('/profile-image', protect, admin, deleteProfileImage);
 
 module.exports = router;

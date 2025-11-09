@@ -59,11 +59,19 @@ function About() {
             {/* Profil ve İsim Bölümü - Mobilde ortalanmış */}
             <div className="flex flex-col items-center sm:flex-row sm:items-center sm:flex-1 gap-4">
               <div className="w-20 h-20 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-blue-500 to-violet-600 flex items-center justify-center shadow-lg overflow-hidden flex-shrink-0">
-                <img
-                  src="/mecvlogo.png"
-                  alt="Profile"
-                  className="w-full h-full object-cover"
-                />
+                {aboutData.profileImage ? (
+                  <img
+                    src={aboutData.profileImage}
+                    alt="Profile"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <img
+                    src="/mecvlogo.png"
+                    alt="Profile"
+                    className="w-full h-full object-cover"
+                  />
+                )}
               </div>
               <div className="text-center sm:text-left flex-1">
                 <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-violet-900 bg-clip-text text-transparent break-words">

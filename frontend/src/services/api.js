@@ -93,6 +93,29 @@ export const deleteCV = async () => {
   return response.data;
 };
 
+/**
+ * Profil resmi yükle (Admin)
+ */
+export const uploadProfileImage = async (file) => {
+  const formData = new FormData();
+  formData.append('profileImage', file);
+
+  const response = await api.post('/about/profile-image', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  return response.data;
+};
+
+/**
+ * Profil resmini sil (Admin)
+ */
+export const deleteProfileImage = async () => {
+  const response = await api.delete('/about/profile-image');
+  return response.data;
+};
+
 // ==================== BLOG API ====================
 
 /**

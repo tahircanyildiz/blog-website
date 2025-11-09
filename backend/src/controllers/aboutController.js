@@ -270,3 +270,109 @@ exports.downloadCV = async (req, res, next) => {
     next(error);
   }
 };
+
+/**
+ * @desc    Profil resmini yükle (Cloudinary)
+ * @route   POST /api/about/profile-image
+ * @access  Private (Admin)
+ */
+exports.uploadProfileImage = async (req, res, next) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: 'Lütfen bir resim dosyası seçin'
+      });
+    }
+
+    // Mevcut about kaydını bul
+    let about = await About.findOne();
+
+    if (!about) {
+      return res.status(404).json({
+        success: false,
+        message: 'Hakkımda bilgisi bulunamadı. Önce hakkımda bilgilerinizi oluşturun.'
+      });
+    }
+
+    // Eski profil resmini Cloudinary'den sil
+    if (about.profileImage && about.profileImage.includes('cloudinary')) {
+      try {
+        // Cloudinary public_id'yi çıkar
+        const urlParts = about.profileImage.split('/');
+        const uploadIndex = urlParts.indexOf('upload');
+        const pathAfterUpload = urlParts.slice(uploadIndex + 1);
+        const startIndex = pathAfterUpload[0].startsWith('v') ? 1 : 0;
+        const publicId = pathAfterUpload.slice(startIndex).join('/').split('.')[0];
+        await cloudinary.uploader.destroy(publicId);
+      } catch (err) {
+        console.error('Eski profil resmi silinirken hata:', err);
+      }
+    }
+
+    // Yeni profil resmi URL'sini kaydet (Cloudinary URL)
+    about.profileImage = req.file.path;
+    await about.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Profil resmi başarıyla yüklendi',
+      data: {
+        profileImage: about.profileImage
+      }
+    });
+  } catch (error) {
+    // Hata durumunda yüklenen dosyayı Cloudinary'den sil
+    if (req.file && req.file.filename) {
+      try {
+        await cloudinary.uploader.destroy(`profile-images/${req.file.filename}`);
+      } catch (err) {
+        console.error('Profil resmi silme hatası:', err);
+      }
+    }
+    next(error);
+  }
+};
+
+/**
+ * @desc    Profil resmini sil (Cloudinary)
+ * @route   DELETE /api/about/profile-image
+ * @access  Private (Admin)
+ */
+exports.deleteProfileImage = async (req, res, next) => {
+  try {
+    const about = await About.findOne();
+
+    if (!about || !about.profileImage) {
+      return res.status(404).json({
+        success: false,
+        message: 'Profil resmi bulunamadı'
+      });
+    }
+
+    // Profil resmini Cloudinary'den sil
+    if (about.profileImage.includes('cloudinary')) {
+      try {
+        const urlParts = about.profileImage.split('/');
+        const uploadIndex = urlParts.indexOf('upload');
+        const pathAfterUpload = urlParts.slice(uploadIndex + 1);
+        const startIndex = pathAfterUpload[0].startsWith('v') ? 1 : 0;
+        const publicId = pathAfterUpload.slice(startIndex).join('/').split('.')[0];
+        await cloudinary.uploader.destroy(publicId);
+      } catch (err) {
+        console.error('Cloudinary silme hatası:', err);
+      }
+    }
+
+    // Veritabanından profil resmi referansını sil
+    about.profileImage = null;
+    await about.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Profil resmi başarıyla silindi'
+    });
+  } catch (error) {
+    next(error);
+  }
+};

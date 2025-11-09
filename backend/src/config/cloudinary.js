@@ -33,7 +33,21 @@ const cvStorage = new CloudinaryStorage({
   }
 });
 
-// Multer middleware
+// Profil resmi için Cloudinary storage
+const profileImageStorage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'profile-images',
+    allowed_formats: ['jpg', 'jpeg', 'png', 'webp'],
+    transformation: [{ width: 500, height: 500, crop: 'limit' }],
+    public_id: (req, file) => {
+      const timestamp = Date.now();
+      return `profile-${timestamp}`;
+    }
+  }
+});
+
+// Multer middleware for CV
 const uploadCV = multer({
   storage: cvStorage,
   limits: {
@@ -49,7 +63,24 @@ const uploadCV = multer({
   }
 });
 
+// Multer middleware for profile image
+const uploadProfileImage = multer({
+  storage: profileImageStorage,
+  limits: {
+    fileSize: 5 * 1024 * 1024 // 5MB limit
+  },
+  fileFilter: (req, file, cb) => {
+    // Sadece resim dosyalarına izin ver
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Sadece resim dosyaları yüklenebilir'), false);
+    }
+  }
+});
+
 module.exports = {
   cloudinary,
-  uploadCV
+  uploadCV,
+  uploadProfileImage
 };
