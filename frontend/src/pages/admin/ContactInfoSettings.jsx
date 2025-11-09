@@ -11,6 +11,7 @@ const ContactInfoSettings = () => {
 
   const [formData, setFormData] = useState({
     email: '',
+    phone: '',
     location: ''
   });
 
@@ -29,6 +30,7 @@ const ContactInfoSettings = () => {
       if (response.data && response.data.contactInfo) {
         setFormData({
           email: response.data.contactInfo.email || '',
+          phone: response.data.contactInfo.phone || '',
           location: response.data.contactInfo.location || ''
         });
       }
@@ -84,6 +86,7 @@ const ContactInfoSettings = () => {
 
       await updateContactInfo({
         email: formData.email.trim(),
+        phone: formData.phone.trim(),
         location: formData.location.trim()
       });
 
@@ -158,6 +161,30 @@ const ContactInfoSettings = () => {
             )}
             <p className="mt-1 text-sm text-gray-500">
               İletişim sayfasında görüntülenecek e-posta adresiniz
+            </p>
+          </div>
+
+          {/* Telefon Numarası */}
+          <div>
+            <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
+              <div className="flex items-center">
+                <svg className="w-5 h-5 mr-2 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                </svg>
+                Telefon Numarası
+              </div>
+            </label>
+            <input
+              type="tel"
+              id="phone"
+              name="phone"
+              value={formData.phone}
+              onChange={handleInputChange}
+              placeholder="+90 xxx xxx xx xx"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
+            />
+            <p className="mt-1 text-sm text-gray-500">
+              Bu numara sadece PDF CV'de görünecek, iletişim sayfasında görünmeyecek
             </p>
           </div>
 

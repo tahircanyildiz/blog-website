@@ -11,6 +11,9 @@ function AboutManagement() {
     description: '',
     experiences: [],
     technologies: '',
+    skills: [],
+    languages: [],
+    references: [],
     cvFile: null,
     profileImage: null
   });
@@ -41,6 +44,12 @@ function AboutManagement() {
         description: data.description || '',
         experiences: data.experiences || [],
         technologies: data.technologies?.join(', ') || '',
+        skills: (data.skills || []).map(skill => ({
+          category: skill.category,
+          items: Array.isArray(skill.items) ? skill.items.join(', ') : skill.items
+        })),
+        languages: data.languages || [],
+        references: data.references || [],
         cvFile: data.cvFile || null,
         profileImage: data.profileImage || null
       });
@@ -105,6 +114,87 @@ function AboutManagement() {
     }));
   };
 
+  // ========== SKILLS FUNCTIONS ==========
+  const addSkill = () => {
+    setFormData(prev => ({
+      ...prev,
+      skills: [...prev.skills, { category: '', items: '' }]
+    }));
+  };
+
+  const removeSkill = (index) => {
+    setFormData(prev => ({
+      ...prev,
+      skills: prev.skills.filter((_, i) => i !== index)
+    }));
+  };
+
+  const updateSkillCategory = (index, value) => {
+    setFormData(prev => ({
+      ...prev,
+      skills: prev.skills.map((skill, i) =>
+        i === index ? { ...skill, category: value } : skill
+      )
+    }));
+  };
+
+  const updateSkillItems = (index, value) => {
+    setFormData(prev => ({
+      ...prev,
+      skills: prev.skills.map((skill, i) =>
+        i === index ? { ...skill, items: value } : skill
+      )
+    }));
+  };
+
+  // ========== LANGUAGES FUNCTIONS ==========
+  const addLanguage = () => {
+    setFormData(prev => ({
+      ...prev,
+      languages: [...prev.languages, { language: '', level: '' }]
+    }));
+  };
+
+  const removeLanguage = (index) => {
+    setFormData(prev => ({
+      ...prev,
+      languages: prev.languages.filter((_, i) => i !== index)
+    }));
+  };
+
+  const updateLanguage = (index, field, value) => {
+    setFormData(prev => ({
+      ...prev,
+      languages: prev.languages.map((lang, i) =>
+        i === index ? { ...lang, [field]: value } : lang
+      )
+    }));
+  };
+
+  // ========== REFERENCES FUNCTIONS ==========
+  const addReference = () => {
+    setFormData(prev => ({
+      ...prev,
+      references: [...prev.references, { name: '', title: '', company: '', phone: '', email: '' }]
+    }));
+  };
+
+  const removeReference = (index) => {
+    setFormData(prev => ({
+      ...prev,
+      references: prev.references.filter((_, i) => i !== index)
+    }));
+  };
+
+  const updateReference = (index, field, value) => {
+    setFormData(prev => ({
+      ...prev,
+      references: prev.references.map((ref, i) =>
+        i === index ? { ...ref, [field]: value } : ref
+      )
+    }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSaving(true);
@@ -118,7 +208,19 @@ function AboutManagement() {
         description: formData.description,
         experiences: formData.experiences,
         technologies: formData.technologies.split(',').map(t => t.trim()).filter(t => t),
+        skills: formData.skills
+          .filter(skill => skill.category && skill.category.trim()) // Sadece kategori dolu olanları al
+          .map(skill => ({
+            category: skill.category,
+            items: typeof skill.items === 'string'
+              ? skill.items.split(',').map(item => item.trim()).filter(item => item)
+              : skill.items
+          })),
+        languages: formData.languages.filter(lang => lang.language && lang.language.trim()), // Sadece dil adı dolu olanları al
+        references: formData.references.filter(ref => ref.name && ref.name.trim()), // Sadece isim dolu olanları al
       };
+
+      console.log('Kaydedilecek data:', data); // DEBUG
 
       await updateAbout(data);
       setSuccess(true);
@@ -526,6 +628,226 @@ function AboutManagement() {
               Teknolojileri virgülle ayırarak yazın. Örn: React, Node.js, TypeScript
             </p>
           </div>
+        </div>
+
+        {/* Yetkinlikler (Skills) - Sadece PDF'de görünür */}
+        <div className="bg-white shadow rounded-lg p-6 border-l-4 border-purple-500">
+          <div className="flex justify-between items-center mb-4">
+            <div>
+              <h2 className="text-xl font-bold text-gray-900">Yetkinlikler</h2>
+              <p className="text-sm text-purple-600 mt-1">📄 Bu bilgiler sadece PDF CV'de görünecek</p>
+            </div>
+            <button
+              type="button"
+              onClick={addSkill}
+              className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors text-sm"
+            >
+              + Yetkinlik Kategorisi Ekle
+            </button>
+          </div>
+
+          {formData.skills.length === 0 ? (
+            <div className="text-center py-8 text-gray-500">
+              <p>Henüz yetkinlik kategorisi eklenmemiş.</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {formData.skills.map((skill, index) => (
+                <div key={index} className="border border-gray-200 rounded-lg p-4">
+                  <div className="flex justify-between items-center mb-3">
+                    <span className="text-sm font-medium text-gray-500">Kategori #{index + 1}</span>
+                    <button
+                      type="button"
+                      onClick={() => removeSkill(index)}
+                      className="text-red-600 hover:text-red-800"
+                      title="Sil"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Kategori Adı</label>
+                      <input
+                        type="text"
+                        value={skill.category}
+                        onChange={(e) => updateSkillCategory(index, e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        placeholder="Frontend Geliştirme, Backend Geliştirme, vb."
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Yetenekler (virgülle ayırın)</label>
+                      <input
+                        type="text"
+                        value={skill.items}
+                        onChange={(e) => updateSkillItems(index, e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        placeholder="React, Vue.js, Angular"
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Diller (Languages) - Sadece PDF'de görünür */}
+        <div className="bg-white shadow rounded-lg p-6 border-l-4 border-blue-500">
+          <div className="flex justify-between items-center mb-4">
+            <div>
+              <h2 className="text-xl font-bold text-gray-900">Yabancı Diller</h2>
+              <p className="text-sm text-blue-600 mt-1">📄 Bu bilgiler sadece PDF CV'de görünecek</p>
+            </div>
+            <button
+              type="button"
+              onClick={addLanguage}
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors text-sm"
+            >
+              + Dil Ekle
+            </button>
+          </div>
+
+          {formData.languages.length === 0 ? (
+            <div className="text-center py-8 text-gray-500">
+              <p>Henüz dil eklenmemiş.</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {formData.languages.map((lang, index) => (
+                <div key={index} className="border border-gray-200 rounded-lg p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="flex-1">
+                      <input
+                        type="text"
+                        value={lang.language}
+                        onChange={(e) => updateLanguage(index, 'language', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="İngilizce"
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <input
+                        type="text"
+                        value={lang.level}
+                        onChange={(e) => updateLanguage(index, 'level', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="İleri Seviye, Ana Dil, vb."
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => removeLanguage(index)}
+                      className="text-red-600 hover:text-red-800"
+                      title="Sil"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Referanslar (References) - Sadece PDF'de görünür */}
+        <div className="bg-white shadow rounded-lg p-6 border-l-4 border-green-500">
+          <div className="flex justify-between items-center mb-4">
+            <div>
+              <h2 className="text-xl font-bold text-gray-900">Referanslar</h2>
+              <p className="text-sm text-green-600 mt-1">📄 Bu bilgiler sadece PDF CV'de görünecek</p>
+            </div>
+            <button
+              type="button"
+              onClick={addReference}
+              className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors text-sm"
+            >
+              + Referans Ekle
+            </button>
+          </div>
+
+          {formData.references.length === 0 ? (
+            <div className="text-center py-8 text-gray-500">
+              <p>Henüz referans eklenmemiş.</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {formData.references.map((ref, index) => (
+                <div key={index} className="border border-gray-200 rounded-lg p-4">
+                  <div className="flex justify-between items-center mb-3">
+                    <span className="text-sm font-medium text-gray-500">Referans #{index + 1}</span>
+                    <button
+                      type="button"
+                      onClick={() => removeReference(index)}
+                      className="text-red-600 hover:text-red-800"
+                      title="Sil"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">İsim Soyisim</label>
+                      <input
+                        type="text"
+                        value={ref.name}
+                        onChange={(e) => updateReference(index, 'name', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                        placeholder="Ahmet Yılmaz"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Ünvan</label>
+                      <input
+                        type="text"
+                        value={ref.title}
+                        onChange={(e) => updateReference(index, 'title', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                        placeholder="Yazılım Müdürü"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Şirket (Opsiyonel)</label>
+                      <input
+                        type="text"
+                        value={ref.company}
+                        onChange={(e) => updateReference(index, 'company', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                        placeholder="ABC Teknoloji"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Telefon (Opsiyonel)</label>
+                      <input
+                        type="tel"
+                        value={ref.phone}
+                        onChange={(e) => updateReference(index, 'phone', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                        placeholder="+90 xxx xxx xx xx"
+                      />
+                    </div>
+                    <div className="md:col-span-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">E-posta (Opsiyonel)</label>
+                      <input
+                        type="email"
+                        value={ref.email}
+                        onChange={(e) => updateReference(index, 'email', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                        placeholder="referans@example.com"
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* CV Yönetimi */}

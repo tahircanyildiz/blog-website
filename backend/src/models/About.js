@@ -43,6 +43,53 @@ const aboutSchema = new mongoose.Schema({
   technologies: [{
     type: String
   }],
+  skills: [{
+    category: {
+      type: String,
+      required: true,
+      trim: true
+    },
+    items: [{
+      type: String,
+      trim: true
+    }]
+  }],
+  languages: [{
+    language: {
+      type: String,
+      required: true,
+      trim: true
+    },
+    level: {
+      type: String,
+      required: true,
+      trim: true
+    }
+  }],
+  references: [{
+    name: {
+      type: String,
+      required: true,
+      trim: true
+    },
+    title: {
+      type: String,
+      required: true,
+      trim: true
+    },
+    company: {
+      type: String,
+      trim: true
+    },
+    phone: {
+      type: String,
+      trim: true
+    },
+    email: {
+      type: String,
+      trim: true
+    }
+  }],
   profileImage: {
     type: String,
     default: null // Cloudinary URL

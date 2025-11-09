@@ -40,6 +40,10 @@ const settingsSchema = new mongoose.Schema({
       lowercase: true,
       match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/, 'Geçerli bir e-posta adresi giriniz']
     },
+    phone: {
+      type: String,
+      trim: true
+    },
     location: {
       type: String,
       trim: true
@@ -59,6 +63,7 @@ settingsSchema.statics.getSingleton = async function() {
       socialMedia: [],
       contactInfo: {
         email: '',
+        phone: '',
         location: ''
       }
     });
