@@ -467,12 +467,11 @@ function AboutManagement() {
                   <div>
                     <p className="text-sm font-medium text-green-900">CV dosyanız yüklü</p>
                     <a
-                      href={`${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000'}/uploads/${formData.cvFile}`}
+                      href={formData.cvFile}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-xs text-green-700 hover:text-green-800 underline"
                     >
-                      CV'yi görüntüle
                     </a>
                   </div>
                 </div>
