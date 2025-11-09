@@ -472,6 +472,7 @@ function AboutManagement() {
                       rel="noopener noreferrer"
                       className="text-xs text-green-700 hover:text-green-800 underline"
                     >
+                      CV'yi Görüntüle
                     </a>
                   </div>
                 </div>
