@@ -14,6 +14,7 @@ function AboutManagement() {
     skills: [],
     languages: [],
     references: [],
+    education: [],
     cvFile: null,
     profileImage: null
   });
@@ -50,6 +51,7 @@ function AboutManagement() {
         })),
         languages: data.languages || [],
         references: data.references || [],
+        education: data.education || [],
         cvFile: data.cvFile || null,
         profileImage: data.profileImage || null
       });
@@ -195,6 +197,30 @@ function AboutManagement() {
     }));
   };
 
+  // ========== EDUCATION FUNCTIONS ==========
+  const addEducation = () => {
+    setFormData(prev => ({
+      ...prev,
+      education: [...prev.education, { degree: '', school: '', department: '', year: '' }]
+    }));
+  };
+
+  const removeEducation = (index) => {
+    setFormData(prev => ({
+      ...prev,
+      education: prev.education.filter((_, i) => i !== index)
+    }));
+  };
+
+  const updateEducation = (index, field, value) => {
+    setFormData(prev => ({
+      ...prev,
+      education: prev.education.map((edu, i) =>
+        i === index ? { ...edu, [field]: value } : edu
+      )
+    }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSaving(true);
@@ -218,6 +244,7 @@ function AboutManagement() {
           })),
         languages: formData.languages.filter(lang => lang.language && lang.language.trim()), // Sadece dil adı dolu olanları al
         references: formData.references.filter(ref => ref.name && ref.name.trim()), // Sadece isim dolu olanları al
+        education: formData.education.filter(edu => edu.degree && edu.school && edu.degree.trim() && edu.school.trim()), // Sadece derece ve okul dolu olanları al
       };
 
       console.log('Kaydedilecek data:', data); // DEBUG
@@ -841,6 +868,98 @@ function AboutManagement() {
                         onChange={(e) => updateReference(index, 'email', e.target.value)}
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                         placeholder="referans@example.com"
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Eğitim (Education) - Sadece PDF'de görünür */}
+        <div className="bg-white shadow rounded-lg p-6 border-l-4 border-orange-500">
+          <div className="flex justify-between items-center mb-4">
+            <div>
+              <h2 className="text-xl font-bold text-gray-900">Eğitim Bilgileri</h2>
+              <p className="text-sm text-orange-600 mt-1">📄 Bu bilgiler sadece PDF CV'de görünecek</p>
+            </div>
+            <button
+              type="button"
+              onClick={addEducation}
+              className="px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 transition-colors text-sm"
+            >
+              + Eğitim Ekle
+            </button>
+          </div>
+
+          {formData.education.length === 0 ? (
+            <div className="text-center py-8 text-gray-500">
+              <p>Henüz eğitim bilgisi eklenmemiş.</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {formData.education.map((edu, index) => (
+                <div key={index} className="border border-gray-200 rounded-lg p-4">
+                  <div className="flex justify-between items-center mb-3">
+                    <span className="text-sm font-medium text-gray-500">Eğitim #{index + 1}</span>
+                    <button
+                      type="button"
+                      onClick={() => removeEducation(index)}
+                      className="text-red-600 hover:text-red-800"
+                      title="Sil"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Okul Türü *</label>
+                      <select
+                        value={edu.degree}
+                        onChange={(e) => updateEducation(index, 'degree', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                      >
+                        <option value="">Seçiniz...</option>
+                        <option value="İlkokul">İlkokul</option>
+                        <option value="Ortaokul">Ortaokul</option>
+                        <option value="Lise">Lise</option>
+                        <option value="Önlisans">Önlisans</option>
+                        <option value="Üniversite">Üniversite</option>
+                        <option value="Yüksek Lisans">Yüksek Lisans</option>
+                        <option value="Doktora">Doktora</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Okul Adı *</label>
+                      <input
+                        type="text"
+                        value={edu.school}
+                        onChange={(e) => updateEducation(index, 'school', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                        placeholder="Ankara Üniversitesi"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Bölüm (Opsiyonel)</label>
+                      <input
+                        type="text"
+                        value={edu.department}
+                        onChange={(e) => updateEducation(index, 'department', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                        placeholder="Bilgisayar Mühendisliği"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Yıl (Opsiyonel)</label>
+                      <input
+                        type="text"
+                        value={edu.year}
+                        onChange={(e) => updateEducation(index, 'year', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                        placeholder="2015 - 2019"
                       />
                     </div>
                   </div>

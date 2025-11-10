@@ -47,7 +47,7 @@ exports.updateAbout = async (req, res, next) => {
       });
     }
 
-    const { name, title, description, experiences, technologies } = req.body;
+    const { name, title, description, experiences, technologies, skills, languages, references, education } = req.body;
 
     // Mevcut kaydı bul ve güncelle, yoksa yeni oluştur
     let about = await About.findOne();
@@ -59,6 +59,10 @@ exports.updateAbout = async (req, res, next) => {
       about.description = description || about.description;
       about.experiences = experiences || about.experiences;
       about.technologies = technologies || about.technologies;
+      about.skills = skills || about.skills;
+      about.languages = languages || about.languages;
+      about.references = references || about.references;
+      about.education = education || about.education;
 
       await about.save();
 
@@ -74,7 +78,11 @@ exports.updateAbout = async (req, res, next) => {
         title,
         description,
         experiences,
-        technologies
+        technologies,
+        skills,
+        languages,
+        references,
+        education
       });
 
       res.status(201).json({

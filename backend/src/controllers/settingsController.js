@@ -73,7 +73,7 @@ exports.updateSocialMedia = async (req, res, next) => {
 // @access  Private/Admin
 exports.updateContactInfo = async (req, res, next) => {
   try {
-    const { email, location } = req.body;
+    const { email, phone, location } = req.body;
 
     const settings = await Settings.getSingleton();
 
@@ -86,6 +86,10 @@ exports.updateContactInfo = async (req, res, next) => {
         });
       }
       settings.contactInfo.email = email;
+    }
+
+    if (phone !== undefined) {
+      settings.contactInfo.phone = phone;
     }
 
     if (location !== undefined) {
@@ -120,6 +124,9 @@ exports.updateSettings = async (req, res, next) => {
     if (contactInfo) {
       if (contactInfo.email !== undefined) {
         settings.contactInfo.email = contactInfo.email;
+      }
+      if (contactInfo.phone !== undefined) {
+        settings.contactInfo.phone = contactInfo.phone;
       }
       if (contactInfo.location !== undefined) {
         settings.contactInfo.location = contactInfo.location;

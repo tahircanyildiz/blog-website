@@ -90,6 +90,27 @@ const aboutSchema = new mongoose.Schema({
       trim: true
     }
   }],
+  education: [{
+    degree: {
+      type: String,
+      required: true,
+      enum: ['İlkokul', 'Ortaokul', 'Lise', 'Önlisans', 'Üniversite', 'Yüksek Lisans', 'Doktora'],
+      trim: true
+    },
+    school: {
+      type: String,
+      required: true,
+      trim: true
+    },
+    department: {
+      type: String,
+      trim: true
+    },
+    year: {
+      type: String,
+      trim: true
+    }
+  }],
   profileImage: {
     type: String,
     default: null // Cloudinary URL

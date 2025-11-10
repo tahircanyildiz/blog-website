@@ -52,63 +52,48 @@ function About() {
       console.log('References:', aboutData.references);
       console.log('Contact Info:', contactInfo);
 
-      // Özel CV HTML oluştur - Compact, tek sayfa, 2 kolon layout
+      // Özel CV HTML oluştur - Optimized layout
       const cvHTML = `
         <div style="font-family: Arial, sans-serif; padding: 20px; background: white; width: 210mm; font-size: 11px;">
-          <!-- Header - Compact -->
-          <div style="border-bottom: 2px solid #2563eb; padding-bottom: 10px; margin-bottom: 15px;">
+          <!-- Header - Centered -->
+          <div style="text-align: center; border-bottom: 2px solid #2563eb; padding-bottom: 10px; margin-bottom: 15px;">
             <h1 style="margin: 0; font-size: 24px; color: #1e40af;">${aboutData.name || ''}</h1>
-            <h2 style="margin: 5px 0 0 0; font-size: 14px; color: #6b7280;">${aboutData.title || ''}</h2>
-            <div style="margin-top: 8px; font-size: 10px; color: #4b5563; display: flex; gap: 15px;">
-              ${contactInfo?.email ? `<span>📧 ${contactInfo.email}</span>` : ''}
-              ${contactInfo?.phone ? `<span>📱 ${contactInfo.phone}</span>` : ''}
+            <h2 style="margin: 5px 0; font-size: 14px; color: #6b7280;">${aboutData.title || ''}</h2>
+            <div style="margin-top: 8px; font-size: 10px; color: #4b5563;">
+              ${contactInfo?.email ? `<span style="margin: 0 10px;">📧 ${contactInfo.email}</span>` : ''}
+              ${contactInfo?.phone ? `<span style="margin: 0 10px;">📱 ${contactInfo.phone}</span>` : ''}
+              ${contactInfo?.location ? `<span style="margin: 0 10px;">📍 ${contactInfo.location}</span>` : ''}
             </div>
           </div>
 
+          <!-- Hakkımda - Full Width -->
+          ${aboutData.description ? `
+          <div style="margin-bottom: 15px;">
+            <h3 style="color: #1e40af; font-size: 13px; margin: 0 0 5px 0; border-bottom: 1px solid #ddd; padding-bottom: 3px; font-weight: bold;">HAKKIMDA</h3>
+            <p style="font-size: 10px; line-height: 1.4; color: #374151; margin: 0;">${aboutData.description}</p>
+          </div>
+          ` : ''}
+
           <!-- 2 Kolon Layout -->
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-            <!-- Sol Kolon -->
-            <div>
-              <!-- Hakkımda -->
-              ${aboutData.description ? `
-              <div style="margin-bottom: 15px;">
-                <h3 style="color: #1e40af; font-size: 13px; margin: 0 0 5px 0; border-bottom: 1px solid #ddd; padding-bottom: 3px; font-weight: bold;">HAKKIMDA</h3>
-                <p style="font-size: 10px; line-height: 1.4; color: #374151; margin: 0;">${aboutData.description}</p>
-              </div>
-              ` : ''}
 
-              <!-- Deneyimler -->
-              ${aboutData.experiences && aboutData.experiences.length > 0 ? `
+            <!-- Sol Kolon - Eğitim, Yetkinlikler, Diller, Referanslar -->
+            <div>
+              <!-- Eğitim -->
+              ${aboutData.education && aboutData.education.length > 0 ? `
               <div style="margin-bottom: 15px;">
-                <h3 style="color: #1e40af; font-size: 13px; margin: 0 0 8px 0; border-bottom: 1px solid #ddd; padding-bottom: 3px; font-weight: bold;">DENEYİMLER</h3>
-                ${aboutData.experiences.map(exp => `
-                  <div style="margin-bottom: 12px;">
-                    <div style="display: flex; justify-content: space-between;">
-                      <h4 style="margin: 0; font-size: 11px; color: #1f2937; font-weight: bold;">${exp.title}</h4>
-                      <span style="font-size: 9px; color: #6b7280;">${exp.period}</span>
-                    </div>
-                    <p style="margin: 2px 0; font-size: 10px; color: #2563eb; font-weight: 600;">${exp.company}</p>
-                    <p style="margin: 3px 0 0 0; font-size: 9px; line-height: 1.3; color: #4b5563;">${exp.description}</p>
+                <h3 style="color: #1e40af; font-size: 13px; margin: 0 0 8px 0; border-bottom: 1px solid #ddd; padding-bottom: 3px; font-weight: bold;">EĞİTİM</h3>
+                ${aboutData.education.map(edu => `
+                  <div style="margin-bottom: 8px;">
+                    <h4 style="margin: 0; font-size: 10px; color: #1f2937; font-weight: bold;">${edu.degree}</h4>
+                    <p style="margin: 2px 0; font-size: 9px; color: #2563eb; font-weight: 600;">${edu.school}</p>
+                    ${edu.department ? `<p style="margin: 2px 0; font-size: 9px; color: #6b7280;">${edu.department}</p>` : ''}
+                    ${edu.year ? `<p style="margin: 2px 0; font-size: 8px; color: #9ca3af;">${edu.year}</p>` : ''}
                   </div>
                 `).join('')}
               </div>
               ` : ''}
 
-              <!-- Teknolojiler -->
-              ${aboutData.technologies && aboutData.technologies.length > 0 ? `
-              <div style="margin-bottom: 15px;">
-                <h3 style="color: #1e40af; font-size: 13px; margin: 0 0 5px 0; border-bottom: 1px solid #ddd; padding-bottom: 3px; font-weight: bold;">TEKNOLOJİLER</h3>
-                <div style="display: flex; flex-wrap: wrap; gap: 4px;">
-                  ${aboutData.technologies.map(tech => `
-                    <span style="background: #dbeafe; color: #1e40af; padding: 2px 8px; border-radius: 8px; font-size: 9px; font-weight: 600;">${tech}</span>
-                  `).join('')}
-                </div>
-              </div>
-              ` : ''}
-            </div>
-
-            <!-- Sağ Kolon -->
-            <div>
               <!-- Yetkinlikler -->
               ${aboutData.skills && aboutData.skills.length > 0 ? `
               <div style="margin-bottom: 15px;">
@@ -153,6 +138,25 @@ function About() {
               </div>
               ` : ''}
             </div>
+
+            <!-- sağ Kolon - Deneyimler -->
+            <div>
+              ${aboutData.experiences && aboutData.experiences.length > 0 ? `
+              <div style="margin-bottom: 15px;">
+                <h3 style="color: #1e40af; font-size: 13px; margin: 0 0 8px 0; border-bottom: 1px solid #ddd; padding-bottom: 3px; font-weight: bold;">DENEYİMLER</h3>
+                ${aboutData.experiences.map(exp => `
+                  <div style="margin-bottom: 12px;">
+                    <div style="display: flex; justify-content: space-between;">
+                      <h4 style="margin: 0; font-size: 11px; color: #1f2937; font-weight: bold;">${exp.title}</h4>
+                      <span style="font-size: 9px; color: #6b7280;">${exp.period}</span>
+                    </div>
+                    <p style="margin: 2px 0; font-size: 10px; color: #2563eb; font-weight: 600;">${exp.company}</p>
+                    <p style="margin: 3px 0 0 0; font-size: 9px; line-height: 1.3; color: #4b5563;">${exp.description}</p>
+                  </div>
+                `).join('')}
+              </div>
+              ` : ''}
+            </div>
           </div>
         </div>
       `;
@@ -169,9 +173,9 @@ function About() {
       // Kısa bir bekleme süresi - DOM'un tamamen render olması için
       await new Promise(resolve => setTimeout(resolve, 100));
 
-      // HTML'i canvas'a çevir
+      // HTML'i canvas'a çevir - Optimize edilmiş boyut için scale düşürüldü
       const canvas = await html2canvas(tempDiv, {
-        scale: 2,
+        scale: 1.5, // 2'den 1.5'e düşürüldü - PDF boyutunu küçültür
         useCORS: true,
         logging: false,
         backgroundColor: '#ffffff',
@@ -182,7 +186,8 @@ function About() {
       // Geçici div'i temizle
       document.body.removeChild(tempDiv);
 
-      const imgData = canvas.toDataURL('image/png');
+      // JPEG kullanarak boyutu küçült (PNG yerine)
+      const imgData = canvas.toDataURL('image/jpeg', 0.85); // 85% kalite - boyut/kalite dengesi
       const pdf = new jsPDF('p', 'mm', 'a4');
 
       const pdfWidth = pdf.internal.pageSize.getWidth();
@@ -193,7 +198,7 @@ function About() {
       const imgX = (pdfWidth - imgWidth * ratio) / 2;
       const imgY = 0;
 
-      pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth * ratio, imgHeight * ratio);
+      pdf.addImage(imgData, 'JPEG', imgX, imgY, imgWidth * ratio, imgHeight * ratio);
       pdf.save(`${aboutData.name?.replace(/\s+/g, '_')}_CV.pdf`);
 
     } catch (error) {
