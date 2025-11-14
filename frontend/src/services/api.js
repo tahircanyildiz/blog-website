@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { cacheService } from './cache';
 
 /**
  * API base URL - Backend sunucusunun adresi
@@ -119,10 +120,20 @@ export const deleteProfileImage = async () => {
 // ==================== BLOG API ====================
 
 /**
- * Tüm blog yazılarını getir
+ * Tüm blog yazılarını getir (cache ile)
  */
 export const getAllBlogs = async () => {
+  const cacheKey = 'all-blogs';
+
+  // Cache'de varsa direkt dön
+  const cached = cacheService.get(cacheKey);
+  if (cached) {
+    return cached;
+  }
+
+  // Yoksa API'den çek ve cache'le
   const response = await api.get('/blogs');
+  cacheService.set(cacheKey, response.data);
   return response.data;
 };
 
@@ -140,6 +151,7 @@ export const getBlogById = async (id) => {
  */
 export const createBlog = async (data) => {
   const response = await api.post('/blogs', data);
+  cacheService.clear('all-blogs'); // Cache'i temizle
   return response.data;
 };
 
@@ -148,6 +160,7 @@ export const createBlog = async (data) => {
  */
 export const updateBlog = async (id, data) => {
   const response = await api.put(`/blogs/${id}`, data);
+  cacheService.clear('all-blogs'); // Cache'i temizle
   return response.data;
 };
 
@@ -156,6 +169,7 @@ export const updateBlog = async (id, data) => {
  */
 export const deleteBlog = async (id) => {
   const response = await api.delete(`/blogs/${id}`);
+  cacheService.clear('all-blogs'); // Cache'i temizle
   return response.data;
 };
 

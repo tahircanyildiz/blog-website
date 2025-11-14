@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { useEffect } from 'react';
 import { AuthProvider } from './contexts/AuthContext';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
@@ -17,12 +18,28 @@ import ContactsManagement from './pages/admin/ContactsManagement';
 import AboutManagement from './pages/admin/AboutManagement';
 import SocialMediaSettings from './pages/admin/SocialMediaSettings';
 import ContactInfoSettings from './pages/admin/ContactInfoSettings';
+import { getAllBlogs } from './services/api';
 
 /**
  * Ana Uygulama Bileşeni
  * Routing yapısı ve layout'u içerir
  */
 function App() {
+  // Backend'i uyandırmak ve blogları prefetch etmek için
+  useEffect(() => {
+    const prefetchData = async () => {
+      try {
+        console.log('🚀 Prefetching blogs to wake up backend...');
+        await getAllBlogs();
+        console.log('✅ Backend awake and blogs cached!');
+      } catch (error) {
+        console.log('⚠️ Prefetch failed (backend might be sleeping):', error.message);
+      }
+    };
+
+    // Sayfa yüklendiğinde hemen başlat
+    prefetchData();
+  }, []);
   return (
     <AuthProvider>
       <Router>
