@@ -18,20 +18,27 @@ import ContactsManagement from './pages/admin/ContactsManagement';
 import AboutManagement from './pages/admin/AboutManagement';
 import SocialMediaSettings from './pages/admin/SocialMediaSettings';
 import ContactInfoSettings from './pages/admin/ContactInfoSettings';
-import { getAllBlogs } from './services/api';
+import { getAllBlogs, getAbout, getSettings } from './services/api';
 
 /**
  * Ana Uygulama Bileşeni
  * Routing yapısı ve layout'u içerir
  */
 function App() {
-  // Backend'i uyandırmak ve blogları prefetch etmek için
+  // Backend'i uyandırmak ve tüm critical data'yı prefetch etmek için
   useEffect(() => {
     const prefetchData = async () => {
       try {
-        console.log('🚀 Prefetching blogs to wake up backend...');
-        await getAllBlogs();
-        console.log('✅ Backend awake and blogs cached!');
+        console.log('🚀 Prefetching data to wake up backend...');
+
+        // Paralel olarak tüm critical data'yı çek
+        await Promise.all([
+          getAllBlogs(),      // Blog listesi
+          getAbout(),         // Hakkımda bilgileri
+          getSettings()       // Site ayarları (sosyal medya, iletişim)
+        ]);
+
+        console.log('✅ Backend awake and all data cached!');
       } catch (error) {
         console.log('⚠️ Prefetch failed (backend might be sleeping):', error.message);
       }

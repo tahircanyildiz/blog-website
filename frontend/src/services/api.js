@@ -55,10 +55,20 @@ api.interceptors.response.use(
 // ==================== ABOUT API ====================
 
 /**
- * Hakkımda bilgisini getir
+ * Hakkımda bilgisini getir (cache ile)
  */
 export const getAbout = async () => {
+  const cacheKey = 'about-data';
+
+  // Cache'de varsa direkt dön
+  const cached = cacheService.get(cacheKey);
+  if (cached) {
+    return cached;
+  }
+
+  // Yoksa API'den çek ve cache'le
   const response = await api.get('/about');
+  cacheService.set(cacheKey, response.data);
   return response.data;
 };
 
@@ -67,6 +77,7 @@ export const getAbout = async () => {
  */
 export const updateAbout = async (data) => {
   const response = await api.put('/about', data);
+  cacheService.clear('about-data'); // Cache'i temizle
   return response.data;
 };
 
@@ -138,11 +149,21 @@ export const getAllBlogs = async () => {
 };
 
 /**
- * Tek bir blog yazısını getir
+ * Tek bir blog yazısını getir (cache ile)
  * @param {string} id - Blog ID
  */
 export const getBlogById = async (id) => {
+  const cacheKey = `blog-${id}`;
+
+  // Cache'de varsa direkt dön
+  const cached = cacheService.get(cacheKey);
+  if (cached) {
+    return cached;
+  }
+
+  // Yoksa API'den çek ve cache'le
   const response = await api.get(`/blogs/${id}`);
+  cacheService.set(cacheKey, response.data);
   return response.data;
 };
 
@@ -160,7 +181,8 @@ export const createBlog = async (data) => {
  */
 export const updateBlog = async (id, data) => {
   const response = await api.put(`/blogs/${id}`, data);
-  cacheService.clear('all-blogs'); // Cache'i temizle
+  cacheService.clear('all-blogs'); // Tüm bloglar cache'ini temizle
+  cacheService.clear(`blog-${id}`); // Bu blog'un cache'ini temizle
   return response.data;
 };
 
@@ -169,7 +191,8 @@ export const updateBlog = async (id, data) => {
  */
 export const deleteBlog = async (id) => {
   const response = await api.delete(`/blogs/${id}`);
-  cacheService.clear('all-blogs'); // Cache'i temizle
+  cacheService.clear('all-blogs'); // Tüm bloglar cache'ini temizle
+  cacheService.clear(`blog-${id}`); // Bu blog'un cache'ini temizle
   return response.data;
 };
 
@@ -229,10 +252,20 @@ export const getMe = async () => {
 // ==================== SETTINGS API ====================
 
 /**
- * Site ayarlarını getir (Public)
+ * Site ayarlarını getir (Public) (cache ile)
  */
 export const getSettings = async () => {
+  const cacheKey = 'settings-data';
+
+  // Cache'de varsa direkt dön
+  const cached = cacheService.get(cacheKey);
+  if (cached) {
+    return cached;
+  }
+
+  // Yoksa API'den çek ve cache'le
   const response = await api.get('/settings');
+  cacheService.set(cacheKey, response.data);
   return response.data;
 };
 
@@ -242,6 +275,7 @@ export const getSettings = async () => {
  */
 export const updateSocialMedia = async (socialMedia) => {
   const response = await api.put('/settings/social-media', { socialMedia });
+  cacheService.clear('settings-data'); // Cache'i temizle
   return response.data;
 };
 
@@ -251,6 +285,7 @@ export const updateSocialMedia = async (socialMedia) => {
  */
 export const updateContactInfo = async (contactInfo) => {
   const response = await api.put('/settings/contact-info', contactInfo);
+  cacheService.clear('settings-data'); // Cache'i temizle
   return response.data;
 };
 
@@ -259,6 +294,7 @@ export const updateContactInfo = async (contactInfo) => {
  */
 export const updateSettings = async (data) => {
   const response = await api.put('/settings', data);
+  cacheService.clear('settings-data'); // Cache'i temizle
   return response.data;
 };
 
