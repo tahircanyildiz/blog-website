@@ -18,7 +18,7 @@ import ContactsManagement from './pages/admin/ContactsManagement';
 import AboutManagement from './pages/admin/AboutManagement';
 import SocialMediaSettings from './pages/admin/SocialMediaSettings';
 import ContactInfoSettings from './pages/admin/ContactInfoSettings';
-import { getAllBlogs, getAbout, getSettings } from './services/api';
+import { getAllBlogs, getBlogById, getAbout, getSettings } from './services/api';
 
 /**
  * Ana Uygulama Bileşeni
@@ -32,13 +32,21 @@ function App() {
         console.log('🚀 Prefetching data to wake up backend...');
 
         // Paralel olarak tüm critical data'yı çek
-        await Promise.all([
+        const [blogs] = await Promise.all([
           getAllBlogs(),      // Blog listesi
           getAbout(),         // Hakkımda bilgileri
           getSettings()       // Site ayarları (sosyal medya, iletişim)
         ]);
 
         console.log('✅ Backend awake and all data cached!');
+
+        // En son 3 bloğu da prefetch et (kullanıcılar genelde son yazıları okur)
+        if (blogs && blogs.length > 0) {
+          const topBlogs = blogs.slice(0, 3);
+          await Promise.all(
+            topBlogs.map(blog => getBlogById(blog._id))
+          );
+        }
       } catch (error) {
         console.log('⚠️ Prefetch failed (backend might be sleeping):', error.message);
       }
