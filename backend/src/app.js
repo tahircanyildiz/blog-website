@@ -10,6 +10,7 @@ const blogRoutes = require('./routes/blogRoutes');
 const contactRoutes = require('./routes/contactRoutes');
 const settingsRoutes = require('./routes/settingsRoutes');
 const pingRoutes = require('./routes/pingRoutes');
+const lobsterleadRoutes = require('./routes/lobsterleadRoutes');
 
 const app = express();
 
@@ -45,6 +46,7 @@ app.use('/api/blogs', blogRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/settings', settingsRoutes);
 app.use('/api/ping', pingRoutes);
+app.use('/api/lobsterlead', lobsterleadRoutes);
 
 // 404 handler - Tanımlanmamış route'lar için
 app.use((req, res, next) => {
