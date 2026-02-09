@@ -11,6 +11,7 @@ const contactRoutes = require('./routes/contactRoutes');
 const settingsRoutes = require('./routes/settingsRoutes');
 const pingRoutes = require('./routes/pingRoutes');
 const lobsterleadRoutes = require('./routes/lobsterleadRoutes');
+const sitemapRoutes = require('./routes/sitemapRoutes');
 
 const app = express();
 
@@ -47,6 +48,9 @@ app.use('/api/contact', contactRoutes);
 app.use('/api/settings', settingsRoutes);
 app.use('/api/ping', pingRoutes);
 app.use('/api/lobsterlead', lobsterleadRoutes);
+
+// Sitemap route (API prefix olmadan)
+app.use('/sitemap.xml', sitemapRoutes);
 
 // 404 handler - Tanımlanmamış route'lar için
 app.use((req, res, next) => {
