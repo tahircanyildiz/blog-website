@@ -4,6 +4,7 @@ import { AuthProvider } from './contexts/AuthContext';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
+import GoogleAnalytics from './components/GoogleAnalytics';
 import Home from './pages/Home';
 import About from './pages/About';
 import BlogList from './pages/BlogList';
@@ -58,6 +59,7 @@ function App() {
   return (
     <AuthProvider>
       <Router>
+        <GoogleAnalytics />
         <Routes>
           {/* Public Routes - Normal kullanıcı sayfaları */}
           <Route
