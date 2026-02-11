@@ -1,26 +1,38 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Calendar, Eye, Tag } from 'lucide-react';
+import { ArrowLeft, Calendar, Eye, Tag, Clock, Share2, Check, ChevronUp } from 'lucide-react';
 import { getBlogById } from '../services/api';
 import Loading from '../components/Loading';
 import ErrorMessage from '../components/ErrorMessage';
-import 'react-quill/dist/quill.snow.css'; // Quill stillerini yükle
+import 'react-quill/dist/quill.snow.css';
 
 /**
  * Blog Detay Sayfası
- * Tek bir blog yazısının tüm içeriğini gösterir
  */
 function BlogDetail() {
-  const { slug } = useParams(); // URL'den blog slug'ını al
+  const { slug } = useParams();
   const navigate = useNavigate();
   const [blog, setBlog] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [copied, setCopied] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const [showScrollTop, setShowScrollTop] = useState(false);
 
-  // Sayfa yüklendiğinde blog detayını çek
   useEffect(() => {
     fetchBlogDetail();
   }, [slug]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = totalHeight > 0 ? (window.scrollY / totalHeight) * 100 : 0;
+      setScrollProgress(progress);
+      setShowScrollTop(window.scrollY > 600);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const fetchBlogDetail = async () => {
     try {
@@ -35,7 +47,6 @@ function BlogDetail() {
     }
   };
 
-  // Tarih formatlama
   const formatDate = (date) => {
     return new Date(date).toLocaleDateString('tr-TR', {
       year: 'numeric',
@@ -44,109 +55,236 @@ function BlogDetail() {
     });
   };
 
+  const getReadingTime = (content) => {
+    if (!content) return 1;
+    const text = content.replace(/<[^>]*>/g, '');
+    const words = text.split(/\s+/).length;
+    return Math.max(1, Math.ceil(words / 200));
+  };
+
+  const handleShare = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Fallback
+    }
+  };
+
   if (loading) return <Loading />;
   if (error) return <div className="container mx-auto px-4 py-8"><ErrorMessage message={error} /></div>;
   if (!blog) return <div className="container mx-auto px-4 py-8"><ErrorMessage message="Blog bulunamadı" /></div>;
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-blue-50 via-white to-violet-50 py-6 sm:py-12">
-      {/* Decorative gradient shapes */}
+    <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-blue-50 via-white to-violet-50">
+      {/* Okuma ilerleme çubuğu */}
+      <div className="fixed top-0 left-0 right-0 z-50 h-1 bg-gray-200/50">
+        <div
+          className="h-full bg-gradient-to-r from-blue-500 to-violet-600 transition-all duration-150 ease-out"
+          style={{ width: `${scrollProgress}%` }}
+        />
+      </div>
+
+      {/* Dekoratif gradient şekiller */}
       <div className="absolute top-20 right-10 w-48 h-48 sm:w-72 sm:h-72 md:w-96 md:h-96 bg-gradient-to-r from-violet-400 to-pink-400 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob"></div>
       <div className="absolute bottom-20 left-10 w-48 h-48 sm:w-72 sm:h-72 md:w-96 md:h-96 bg-gradient-to-r from-blue-400 to-indigo-400 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob animation-delay-2000"></div>
 
-      <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Geri Dön Butonu */}
-        <button
-          onClick={() => navigate('/blog')}
-          className="inline-flex items-center text-sm sm:text-base text-blue-600 hover:text-blue-700 mb-6 sm:mb-8 font-semibold
-                   transition-all group bg-white/80 backdrop-blur-sm px-3 py-2 sm:px-4 sm:py-2 rounded-xl shadow-md hover:shadow-lg"
-        >
-          <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 mr-1.5 sm:mr-2 transform group-hover:-translate-x-1 transition-transform" />
-          <span className="hidden sm:inline">Tüm Yazılara Dön</span>
-          <span className="sm:hidden">Geri</span>
-        </button>
+      {/* Full-width Hero Header */}
+      <div className="relative bg-gradient-to-r from-blue-600 via-violet-600 to-purple-600 text-white overflow-hidden">
+        <div className="absolute inset-0">
+          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-white/5 rounded-full -translate-y-1/2 translate-x-1/4"></div>
+          <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-white/5 rounded-full translate-y-1/2 -translate-x-1/4"></div>
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-white/[0.02] rounded-full"></div>
+        </div>
 
-        {/* Blog İçeriği */}
-        <article className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-2xl overflow-hidden border border-blue-100">
-          {/* Başlık Bölümü */}
-          <div className="bg-gradient-to-r from-blue-600 via-violet-600 to-purple-600 text-white p-6 sm:p-8 md:p-12">
-            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 sm:mb-6 leading-tight break-words">{blog.title}</h1>
-
-            {/* Meta Bilgiler */}
-            <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs sm:text-sm text-blue-100">
-              <div className="flex items-center font-medium">
-                <Calendar className="w-4 h-4 sm:w-5 sm:h-5 mr-1.5 sm:mr-2 flex-shrink-0" />
-                <span className="truncate">{formatDate(blog.publishDate)}</span>
-              </div>
-
-              <div className="flex items-center font-medium">
-                <Eye className="w-4 h-4 sm:w-5 sm:h-5 mr-1.5 sm:mr-2 flex-shrink-0" />
-                {blog.viewCount} görüntülenme
-              </div>
-            </div>
-
-            {/* Etiketler */}
-            {blog.tags && blog.tags.length > 0 && (
-              <div className="flex flex-wrap gap-2 mt-4 sm:mt-6">
-                {blog.tags.map((tag, index) => (
-                  <span
-                    key={index}
-                    className="inline-flex items-center px-3 py-1.5 sm:px-4 sm:py-2 bg-white/20 backdrop-blur-sm rounded-full text-xs sm:text-sm font-semibold break-words"
-                  >
-                    <Tag className="w-3 h-3 sm:w-3.5 sm:h-3.5 mr-1 sm:mr-1.5 flex-shrink-0" />
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* İçerik Bölümü */}
-          <div className="p-6 sm:p-8 md:p-12">
-            {/* Kısa Açıklama */}
-            <div className="text-base sm:text-lg md:text-xl text-gray-700 font-medium mb-6 sm:mb-8 pb-6 sm:pb-8 border-b-2 border-gradient-to-r from-blue-200 to-violet-200 leading-relaxed break-words">
-              {blog.shortDescription}
-            </div>
-
-            {/* Ana İçerik - HTML Content (Quill Editor Output) */}
-            <div
-              className="ql-editor prose prose-sm sm:prose-base md:prose-lg max-w-none
-                prose-headings:text-gray-900 prose-headings:font-bold prose-headings:break-words
-                prose-h1:text-xl sm:prose-h1:text-2xl md:prose-h1:text-3xl
-                prose-h2:text-lg sm:prose-h2:text-xl md:prose-h2:text-2xl
-                prose-h3:text-base sm:prose-h3:text-lg md:prose-h3:text-xl
-                prose-p:text-gray-700 prose-p:leading-relaxed prose-p:mb-4 prose-p:break-words
-                prose-a:text-blue-600 prose-a:no-underline hover:prose-a:underline hover:prose-a:text-blue-700 prose-a:break-words
-                prose-strong:text-gray-900 prose-strong:font-semibold
-                prose-ul:list-disc prose-ol:list-decimal prose-ul:pl-4 sm:prose-ul:pl-6 prose-ol:pl-4 sm:prose-ol:pl-6
-                prose-li:text-gray-700 prose-li:mb-2 prose-li:break-words
-                prose-blockquote:border-l-4 prose-blockquote:border-blue-600 prose-blockquote:bg-blue-50 prose-blockquote:text-gray-700 prose-blockquote:pl-3 sm:prose-blockquote:pl-4 prose-blockquote:py-2 prose-blockquote:rounded-r-lg prose-blockquote:break-words
-                prose-img:rounded-xl prose-img:shadow-lg prose-img:my-6 sm:prose-img:my-8 prose-img:w-full prose-img:h-auto prose-img:select-none prose-img:pointer-events-none
-                prose-code:text-sm prose-code:break-words
-                prose-pre:overflow-x-auto prose-pre:text-sm
-                [&_img]:select-none [&_img]:pointer-events-none [&_img]:draggable-[false]"
-              dangerouslySetInnerHTML={{ __html: blog.content }}
-              onContextMenu={(e) => {
-                if (e.target.tagName === 'IMG') {
-                  e.preventDefault();
-                  return false;
-                }
-              }}
-            />
-          </div>
-        </article>
-
-        {/* Alt Navigasyon */}
-        <div className="mt-6 sm:mt-8 flex justify-center">
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-10 sm:pt-12 sm:pb-14 md:pt-16 md:pb-20">
+          {/* Geri dön */}
           <button
             onClick={() => navigate('/blog')}
-            className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-blue-600 to-violet-600 text-white text-sm sm:text-base rounded-xl font-semibold
-                     hover:from-blue-700 hover:to-violet-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+            className="inline-flex items-center text-sm text-blue-200 hover:text-white mb-6 sm:mb-8 font-medium transition-colors group"
           >
-            Diğer Yazıları Gör
+            <ArrowLeft className="w-4 h-4 mr-1.5 transform group-hover:-translate-x-1 transition-transform" />
+            Tüm Yazılar
           </button>
+
+          {/* Başlık */}
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold leading-tight break-words max-w-4xl">
+            {blog.title}
+          </h1>
+
+          {/* Kısa açıklama */}
+          <p className="mt-4 sm:mt-5 text-blue-100 text-base sm:text-lg md:text-xl leading-relaxed max-w-3xl break-words">
+            {blog.shortDescription}
+          </p>
+
+          {/* Meta bilgiler satırı */}
+          <div className="mt-6 sm:mt-8 flex flex-wrap items-center gap-3 sm:gap-5">
+            <span className="flex items-center gap-1.5 text-sm text-blue-200 font-medium">
+              <Calendar className="w-4 h-4" />
+              {formatDate(blog.publishDate)}
+            </span>
+            <span className="w-1 h-1 rounded-full bg-blue-300/50 hidden sm:block"></span>
+            <span className="flex items-center gap-1.5 text-sm text-blue-200 font-medium">
+              <Clock className="w-4 h-4" />
+              {getReadingTime(blog.content)} dk okuma
+            </span>
+            <span className="w-1 h-1 rounded-full bg-blue-300/50 hidden sm:block"></span>
+            <span className="flex items-center gap-1.5 text-sm text-blue-200 font-medium">
+              <Eye className="w-4 h-4" />
+              {blog.viewCount} görüntülenme
+            </span>
+          </div>
         </div>
       </div>
+
+      {/* İçerik Alanı - Sidebar ile */}
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+        <div className="lg:grid lg:grid-cols-[1fr_280px] lg:gap-8 xl:gap-12">
+
+          {/* Ana İçerik */}
+          <article className="min-w-0">
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 sm:p-8 md:p-10">
+              {/* Ana İçerik - HTML Content */}
+              <div
+                className="ql-editor prose prose-sm sm:prose-base md:prose-lg max-w-none
+                  prose-headings:text-gray-900 prose-headings:font-bold prose-headings:break-words
+                  prose-h1:text-xl sm:prose-h1:text-2xl md:prose-h1:text-3xl prose-h1:mt-10 prose-h1:mb-4
+                  prose-h2:text-lg sm:prose-h2:text-xl md:prose-h2:text-2xl prose-h2:mt-8 prose-h2:mb-3
+                  prose-h3:text-base sm:prose-h3:text-lg md:prose-h3:text-xl prose-h3:mt-6 prose-h3:mb-2
+                  prose-p:text-gray-700 prose-p:leading-[1.8] prose-p:mb-5 prose-p:break-words
+                  prose-a:text-blue-600 prose-a:no-underline prose-a:font-medium hover:prose-a:underline hover:prose-a:text-blue-700 prose-a:break-words
+                  prose-strong:text-gray-900 prose-strong:font-semibold
+                  prose-ul:list-disc prose-ol:list-decimal prose-ul:pl-4 sm:prose-ul:pl-6 prose-ol:pl-4 sm:prose-ol:pl-6
+                  prose-li:text-gray-700 prose-li:mb-2 prose-li:leading-relaxed prose-li:break-words
+                  prose-blockquote:border-l-4 prose-blockquote:border-blue-500 prose-blockquote:bg-blue-50/50 prose-blockquote:text-gray-700 prose-blockquote:pl-4 sm:prose-blockquote:pl-5 prose-blockquote:py-3 prose-blockquote:rounded-r-xl prose-blockquote:break-words prose-blockquote:italic prose-blockquote:not-italic
+                  prose-img:rounded-2xl prose-img:shadow-xl prose-img:my-8 sm:prose-img:my-10 prose-img:w-full prose-img:h-auto prose-img:select-none prose-img:pointer-events-none
+                  prose-code:text-sm prose-code:bg-violet-50 prose-code:text-violet-700 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded-md prose-code:break-words prose-code:font-medium
+                  prose-pre:overflow-x-auto prose-pre:text-sm prose-pre:bg-gray-900 prose-pre:rounded-xl prose-pre:shadow-lg prose-pre:border prose-pre:border-gray-800
+                  [&_img]:select-none [&_img]:pointer-events-none [&_img]:draggable-[false]"
+                dangerouslySetInnerHTML={{ __html: blog.content }}
+                onContextMenu={(e) => {
+                  if (e.target.tagName === 'IMG') {
+                    e.preventDefault();
+                    return false;
+                  }
+                }}
+              />
+            </div>
+
+            {/* Alt Navigasyon */}
+            <div className="mt-8 flex justify-center">
+              <button
+                onClick={() => navigate('/blog')}
+                className="w-full sm:w-auto px-8 py-3.5 bg-gradient-to-r from-blue-600 to-violet-600 text-white text-sm sm:text-base rounded-xl font-semibold
+                         hover:from-blue-700 hover:to-violet-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
+              >
+                Diğer Yazıları Keşfet
+              </button>
+            </div>
+          </article>
+
+          {/* Sticky Sidebar */}
+          <aside className="hidden lg:block">
+            <div className="sticky top-8 space-y-5">
+              {/* Paylaş kartı */}
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+                <button
+                  onClick={handleShare}
+                  className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${
+                    copied
+                      ? 'bg-green-50 border border-green-200 text-green-600'
+                      : 'bg-gray-50 border border-gray-200 text-gray-600 hover:bg-blue-50 hover:border-blue-200 hover:text-blue-600'
+                  }`}
+                >
+                  {copied ? <Check className="w-4 h-4" /> : <Share2 className="w-4 h-4" />}
+                  {copied ? 'Link Kopyalandı!' : 'Yazıyı Paylaş'}
+                </button>
+              </div>
+
+              {/* Bilgi kartı */}
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+                <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Yazı Bilgileri</h3>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3 text-sm">
+                    <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
+                      <Calendar className="w-4 h-4 text-blue-500" />
+                    </div>
+                    <div>
+                      <p className="text-gray-400 text-xs">Yayın Tarihi</p>
+                      <p className="text-gray-700 font-medium">{formatDate(blog.publishDate)}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3 text-sm">
+                    <div className="w-8 h-8 rounded-lg bg-violet-50 flex items-center justify-center flex-shrink-0">
+                      <Clock className="w-4 h-4 text-violet-500" />
+                    </div>
+                    <div>
+                      <p className="text-gray-400 text-xs">Okuma Süresi</p>
+                      <p className="text-gray-700 font-medium">{getReadingTime(blog.content)} dakika</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3 text-sm">
+                    <div className="w-8 h-8 rounded-lg bg-pink-50 flex items-center justify-center flex-shrink-0">
+                      <Eye className="w-4 h-4 text-pink-500" />
+                    </div>
+                    <div>
+                      <p className="text-gray-400 text-xs">Görüntülenme</p>
+                      <p className="text-gray-700 font-medium">{blog.viewCount}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Etiketler kartı */}
+              {blog.tags && blog.tags.length > 0 && (
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+                  <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Etiketler</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {blog.tags.map((tag, index) => (
+                      <span
+                        key={index}
+                        className="inline-flex items-center gap-1 px-3 py-1.5 bg-gradient-to-r from-blue-50 to-violet-50 text-blue-700 text-xs font-semibold rounded-lg border border-blue-100 break-words"
+                      >
+                        <Tag className="w-3 h-3 flex-shrink-0" />
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </aside>
+        </div>
+
+        {/* Mobilde etiketler (sidebar gizli olduğunda) */}
+        {blog.tags && blog.tags.length > 0 && (
+          <div className="lg:hidden mt-6 bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+            <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Etiketler</h3>
+            <div className="flex flex-wrap gap-2">
+              {blog.tags.map((tag, index) => (
+                <span
+                  key={index}
+                  className="inline-flex items-center gap-1 px-3 py-1.5 bg-gradient-to-r from-blue-50 to-violet-50 text-blue-700 text-xs font-semibold rounded-lg border border-blue-100 break-words"
+                >
+                  <Tag className="w-3 h-3 flex-shrink-0" />
+                  {tag}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Scroll to top butonu */}
+      {showScrollTop && (
+        <button
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          className="fixed bottom-6 right-6 z-40 w-11 h-11 bg-white shadow-lg border border-gray-200 rounded-full flex items-center justify-center text-gray-500 hover:text-blue-600 hover:border-blue-200 transition-all duration-200 hover:shadow-xl"
+        >
+          <ChevronUp className="w-5 h-5" />
+        </button>
+      )}
     </div>
   );
 }
