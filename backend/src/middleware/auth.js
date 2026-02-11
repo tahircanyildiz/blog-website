@@ -2,22 +2,24 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
 /**
- * JWT token doğrulama middleware'i
- * Authorization header'dan token'ı alır ve doğrular
+ * JWT token veya API Key doğrulama middleware'i
+ * Bearer token veya X-API-KEY header'ı ile gelen istekleri doğrular
  */
 const protect = async (req, res, next) => {
+  // Önce API Key kontrolü yap
+  const apiKey = req.headers['x-api-key'];
+  if (apiKey && apiKey === process.env.LOBSTERLEAD_API_KEY) {
+    req.user = { role: 'admin' };
+    return next();
+  }
+
+  // JWT token kontrolü
   let token;
 
-  // Header'dan token'ı al
   if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
     try {
-      // Token'ı ayıkla (Bearer kısmını çıkar)
       token = req.headers.authorization.split(' ')[1];
-
-      // Token'ı doğrula
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-      // Kullanıcıyı veritabanından al (şifre hariç)
       req.user = await User.findById(decoded.id).select('-password');
 
       if (!req.user) {
@@ -27,7 +29,7 @@ const protect = async (req, res, next) => {
         });
       }
 
-      next();
+      return next();
     } catch (error) {
       console.error('Token doğrulama hatası:', error);
       return res.status(401).json({
@@ -37,13 +39,10 @@ const protect = async (req, res, next) => {
     }
   }
 
-  // Token yoksa hata döndür
-  if (!token) {
-    return res.status(401).json({
-      success: false,
-      message: 'Yetkilendirme token\'ı bulunamadı'
-    });
-  }
+  return res.status(401).json({
+    success: false,
+    message: 'Yetkilendirme token\'ı bulunamadı'
+  });
 };
 
 /**
