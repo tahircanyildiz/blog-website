@@ -19,6 +19,13 @@ const protect = async (req, res, next) => {
   if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
     try {
       token = req.headers.authorization.split(' ')[1];
+
+      // Bearer token olarak gelen API Key kontrolü
+      if (token === process.env.LOBSTERLEAD_API_KEY) {
+        req.user = { role: 'admin' };
+        return next();
+      }
+
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
       req.user = await User.findById(decoded.id).select('-password');
 
