@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { getAllBlogs, getAllContacts } from '../../services/api';
+import { useTheme } from '../../contexts/ThemeContext';
+import { FileText, Mail, User, Plus, Globe, TrendingUp } from 'lucide-react';
 
-/**
- * Admin Dashboard Ana Sayfa
- * İstatistikler ve hızlı erişim kartları
- */
 function Dashboard() {
+  const { theme } = useTheme();
+  const isGlass = theme === 'glass';
+
   const [stats, setStats] = useState({
     totalBlogs: 0,
     totalMessages: 0,
@@ -39,23 +40,29 @@ function Dashboard() {
     {
       title: 'Blog Yazıları',
       value: stats.totalBlogs,
-      icon: '📝',
+      icon: FileText,
       link: '/mrpurposeless/blogs',
-      color: 'bg-blue-500',
+      gradient: 'from-blue-500 to-blue-600',
+      iconBg: isGlass ? 'bg-blue-500/20' : 'bg-blue-50 dark:bg-blue-500/10',
+      iconColor: isGlass ? 'text-blue-300' : 'text-blue-600 dark:text-blue-400',
     },
     {
       title: 'İletişim Mesajları',
       value: stats.totalMessages,
-      icon: '✉️',
+      icon: Mail,
       link: '/mrpurposeless/contacts',
-      color: 'bg-green-500',
+      gradient: 'from-emerald-500 to-emerald-600',
+      iconBg: isGlass ? 'bg-emerald-500/20' : 'bg-emerald-50 dark:bg-emerald-500/10',
+      iconColor: isGlass ? 'text-emerald-300' : 'text-emerald-600 dark:text-emerald-400',
     },
     {
       title: 'Hakkımda',
       value: '1',
-      icon: '👤',
+      icon: User,
       link: '/mrpurposeless/about',
-      color: 'bg-purple-500',
+      gradient: 'from-violet-500 to-violet-600',
+      iconBg: isGlass ? 'bg-violet-500/20' : 'bg-violet-50 dark:bg-violet-500/10',
+      iconColor: isGlass ? 'text-violet-300' : 'text-violet-600 dark:text-violet-400',
     },
   ];
 
@@ -71,68 +78,110 @@ function Dashboard() {
     <div>
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-        <p className="mt-2 text-gray-600">Yönetim paneline hoş geldiniz</p>
+        <div className="flex items-center gap-3 mb-2">
+          <div className={`p-2 rounded-xl ${
+            isGlass ? 'bg-indigo-500/20' : 'bg-indigo-50 dark:bg-indigo-500/10'
+          }`}>
+            <TrendingUp className={`w-6 h-6 ${
+              isGlass ? 'text-indigo-300' : 'text-indigo-600 dark:text-indigo-400'
+            }`} />
+          </div>
+          <h1 className={`text-3xl font-bold ${
+            isGlass ? 'text-white' : 'text-gray-900 dark:text-white'
+          }`}>Dashboard</h1>
+        </div>
+        <p className={`${
+          isGlass ? 'text-indigo-300' : 'text-gray-600 dark:text-gray-400'
+        }`}>Yönetim paneline hoş geldiniz</p>
       </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {cards.map((card, index) => (
-          <Link
-            key={index}
-            to={card.link}
-            className="bg-white overflow-hidden shadow rounded-lg hover:shadow-lg transition-shadow"
-          >
-            <div className="p-5">
-              <div className="flex items-center">
-                <div className={`flex-shrink-0 ${card.color} rounded-md p-3`}>
-                  <span className="text-3xl">{card.icon}</span>
+        {cards.map((card, index) => {
+          const Icon = card.icon;
+          return (
+            <Link
+              key={index}
+              to={card.link}
+              className={`group overflow-hidden rounded-2xl transition-all duration-200 hover:scale-[1.02] ${
+                isGlass
+                  ? 'bg-white/10 backdrop-blur-xl border border-white/10 hover:bg-white/15'
+                  : 'bg-white dark:bg-gray-800 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-lg'
+              }`}
+            >
+              <div className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div className={`p-3 rounded-xl ${card.iconBg}`}>
+                    <Icon className={`w-6 h-6 ${card.iconColor}`} />
+                  </div>
                 </div>
-                <div className="ml-5 w-0 flex-1">
-                  <dl>
-                    <dt className="text-sm font-medium text-gray-500 truncate">
-                      {card.title}
-                    </dt>
-                    <dd className="flex items-baseline">
-                      <div className="text-2xl font-semibold text-gray-900">
-                        {card.value}
-                      </div>
-                    </dd>
-                  </dl>
-                </div>
+                <p className={`text-sm font-medium mb-1 ${
+                  isGlass ? 'text-indigo-300' : 'text-gray-500 dark:text-gray-400'
+                }`}>{card.title}</p>
+                <p className={`text-3xl font-bold ${
+                  isGlass ? 'text-white' : 'text-gray-900 dark:text-white'
+                }`}>{card.value}</p>
               </div>
-            </div>
-            <div className="bg-gray-50 px-5 py-3">
-              <div className="text-sm">
-                <span className="font-medium text-indigo-600 hover:text-indigo-500">
+              <div className={`px-6 py-3 ${
+                isGlass
+                  ? 'bg-white/5 border-t border-white/10'
+                  : 'bg-gray-50 dark:bg-gray-700/50 border-t border-gray-100 dark:border-gray-700'
+              }`}>
+                <span className={`text-sm font-medium ${
+                  isGlass
+                    ? 'text-indigo-300 group-hover:text-white'
+                    : 'text-indigo-600 dark:text-indigo-400 group-hover:text-indigo-500'
+                }`}>
                   Görüntüle →
                 </span>
               </div>
-            </div>
-          </Link>
-        ))}
+            </Link>
+          );
+        })}
       </div>
 
       {/* Quick Actions */}
       <div className="mt-8">
-        <h2 className="text-xl font-bold text-gray-900 mb-4">Hızlı İşlemler</h2>
-        <div className="bg-white shadow rounded-lg p-6">
+        <h2 className={`text-xl font-bold mb-4 ${
+          isGlass ? 'text-white' : 'text-gray-900 dark:text-white'
+        }`}>Hızlı İşlemler</h2>
+        <div className={`rounded-2xl p-6 ${
+          isGlass
+            ? 'bg-white/10 backdrop-blur-xl border border-white/10'
+            : 'bg-white dark:bg-gray-800 shadow-sm border border-gray-200 dark:border-gray-700'
+        }`}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Link
               to="/mrpurposeless/blogs/new"
-              className="flex items-center justify-center px-6 py-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-indigo-500 transition-colors"
+              className={`flex items-center justify-center px-6 py-4 border-2 border-dashed rounded-xl transition-all ${
+                isGlass
+                  ? 'border-white/20 hover:border-indigo-400/50 hover:bg-white/5'
+                  : 'border-gray-300 dark:border-gray-600 hover:border-indigo-500 dark:hover:border-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-500/5'
+              }`}
             >
-              <span className="text-2xl mr-2">➕</span>
-              <span className="font-medium text-gray-700">Yeni Blog Yazısı</span>
+              <Plus className={`w-5 h-5 mr-2 ${
+                isGlass ? 'text-indigo-300' : 'text-indigo-600 dark:text-indigo-400'
+              }`} />
+              <span className={`font-medium ${
+                isGlass ? 'text-indigo-200' : 'text-gray-700 dark:text-gray-300'
+              }`}>Yeni Blog Yazısı</span>
             </Link>
             <a
               href="/"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center justify-center px-6 py-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-indigo-500 transition-colors"
+              className={`flex items-center justify-center px-6 py-4 border-2 border-dashed rounded-xl transition-all ${
+                isGlass
+                  ? 'border-white/20 hover:border-indigo-400/50 hover:bg-white/5'
+                  : 'border-gray-300 dark:border-gray-600 hover:border-indigo-500 dark:hover:border-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-500/5'
+              }`}
             >
-              <span className="text-2xl mr-2">🌐</span>
-              <span className="font-medium text-gray-700">Siteyi Görüntüle</span>
+              <Globe className={`w-5 h-5 mr-2 ${
+                isGlass ? 'text-indigo-300' : 'text-indigo-600 dark:text-indigo-400'
+              }`} />
+              <span className={`font-medium ${
+                isGlass ? 'text-indigo-200' : 'text-gray-700 dark:text-gray-300'
+              }`}>Siteyi Görüntüle</span>
             </a>
           </div>
         </div>

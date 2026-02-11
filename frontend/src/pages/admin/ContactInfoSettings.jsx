@@ -1,13 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { getSettings, updateContactInfo } from '../../services/api';
-import Loading from '../../components/Loading';
-import ErrorMessage from '../../components/ErrorMessage';
+import { useTheme } from '../../contexts/ThemeContext';
+import { Mail, Phone, MapPin, Info, Save } from 'lucide-react';
 
 const ContactInfoSettings = () => {
+  const { theme } = useTheme();
+  const isGlass = theme === 'glass';
+
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(false);
+  const [notification, setNotification] = useState({ show: false, message: '', type: '' });
 
   const [formData, setFormData] = useState({
     email: '',
@@ -17,6 +19,11 @@ const ContactInfoSettings = () => {
 
   const [validationErrors, setValidationErrors] = useState({});
 
+  const showNotification = (message, type) => {
+    setNotification({ show: true, message, type });
+    setTimeout(() => setNotification({ show: false, message: '', type: '' }), 3000);
+  };
+
   useEffect(() => {
     fetchSettings();
   }, []);
@@ -24,9 +31,7 @@ const ContactInfoSettings = () => {
   const fetchSettings = async () => {
     try {
       setLoading(true);
-      setError(null);
       const response = await getSettings();
-
       if (response.data && response.data.contactInfo) {
         setFormData({
           email: response.data.contactInfo.email || '',
@@ -35,7 +40,7 @@ const ContactInfoSettings = () => {
         });
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Ayarlar yüklenirken bir hata oluştu');
+      showNotification(err.response?.data?.message || 'Ayarlar yüklenirken bir hata oluştu', 'error');
     } finally {
       setLoading(false);
     }
@@ -43,107 +48,89 @@ const ContactInfoSettings = () => {
 
   const validateForm = () => {
     const errors = {};
-
-    // Email validasyonu
     if (formData.email && formData.email.trim() !== '') {
       const emailRegex = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/;
       if (!emailRegex.test(formData.email)) {
         errors.email = 'Geçerli bir e-posta adresi giriniz';
       }
     }
-
     setValidationErrors(errors);
     return Object.keys(errors).length === 0;
   };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-
-    // Input değiştiğinde ilgili hatayı temizle
+    setFormData(prev => ({ ...prev, [name]: value }));
     if (validationErrors[name]) {
-      setValidationErrors(prev => ({
-        ...prev,
-        [name]: null
-      }));
+      setValidationErrors(prev => ({ ...prev, [name]: null }));
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!validateForm()) {
-      return;
-    }
+    if (!validateForm()) return;
 
     try {
       setSaving(true);
-      setError(null);
-      setSuccess(false);
-
       await updateContactInfo({
         email: formData.email.trim(),
         phone: formData.phone.trim(),
         location: formData.location.trim()
       });
-
-      setSuccess(true);
-
-      // 3 saniye sonra başarı mesajını kaldır
-      setTimeout(() => {
-        setSuccess(false);
-      }, 3000);
-
+      showNotification('İletişim bilgileri başarıyla güncellendi!', 'success');
     } catch (err) {
-      setError(err.response?.data?.message || 'Kaydetme sırasında bir hata oluştu');
+      showNotification(err.response?.data?.message || 'Kaydetme sırasında bir hata oluştu', 'error');
     } finally {
       setSaving(false);
     }
   };
 
+  const cardClass = isGlass
+    ? 'bg-white/10 backdrop-blur-xl border border-white/10 rounded-2xl'
+    : 'bg-white dark:bg-gray-800 shadow-sm border border-gray-200 dark:border-gray-700 rounded-2xl';
+  const headingClass = isGlass ? 'text-white' : 'text-gray-900 dark:text-white';
+  const subTextClass = isGlass ? 'text-indigo-300' : 'text-gray-600 dark:text-gray-400';
+  const labelClass = isGlass ? 'text-indigo-200' : 'text-gray-700 dark:text-gray-300';
+  const hintClass = isGlass ? 'text-indigo-400/70' : 'text-gray-500 dark:text-gray-500';
+  const inputClass = isGlass
+    ? 'w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-indigo-400/50 focus:outline-none focus:ring-2 focus:ring-indigo-500'
+    : 'w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors';
+
   if (loading) {
-    return <Loading />;
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+      </div>
+    );
   }
 
   return (
     <div className="max-w-3xl mx-auto">
-      <div className="bg-white rounded-lg shadow-lg p-8">
+      {/* Bildirim */}
+      {notification.show && (
+        <div className={`fixed top-6 right-6 z-50 px-6 py-4 rounded-xl shadow-2xl text-white text-sm font-medium transition-all duration-300 ${
+          notification.type === 'success' ? 'bg-green-500' : 'bg-red-500'
+        }`}>
+          {notification.message}
+        </div>
+      )}
+
+      <div className={`${cardClass} p-8`}>
         {/* Başlık */}
         <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">İletişim Bilgileri Ayarları</h1>
-          <p className="text-gray-600">
+          <h1 className={`text-3xl font-bold mb-2 ${headingClass}`}>İletişim Bilgileri Ayarları</h1>
+          <p className={subTextClass}>
             İletişim sayfasında görünecek e-posta ve konum bilgilerinizi buradan yönetebilirsiniz.
           </p>
         </div>
-
-        {/* Başarı Mesajı */}
-        {success && (
-          <div className="mb-6 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg">
-            İletişim bilgileri başarıyla güncellendi!
-          </div>
-        )}
-
-        {/* Hata Mesajı */}
-        {error && (
-          <div className="mb-6">
-            <ErrorMessage message={error} />
-          </div>
-        )}
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* E-posta */}
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-              <div className="flex items-center">
-                <svg className="w-5 h-5 mr-2 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                </svg>
-                E-posta Adresi
-              </div>
+            <label htmlFor="email" className={`flex items-center text-sm font-medium mb-2 ${labelClass}`}>
+              <Mail className={`w-5 h-5 mr-2 ${isGlass ? 'text-indigo-400' : 'text-indigo-600 dark:text-indigo-400'}`} />
+              E-posta Adresi
             </label>
             <input
               type="email"
@@ -152,27 +139,21 @@ const ContactInfoSettings = () => {
               value={formData.email}
               onChange={handleInputChange}
               placeholder="your-email@example.com"
-              className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors ${
-                validationErrors.email ? 'border-red-500' : 'border-gray-300'
-              }`}
+              className={`${inputClass} ${validationErrors.email ? '!border-red-500' : ''}`}
             />
             {validationErrors.email && (
-              <p className="mt-1 text-sm text-red-600">{validationErrors.email}</p>
+              <p className="mt-1 text-sm text-red-400">{validationErrors.email}</p>
             )}
-            <p className="mt-1 text-sm text-gray-500">
+            <p className={`mt-1 text-sm ${hintClass}`}>
               İletişim sayfasında görüntülenecek e-posta adresiniz
             </p>
           </div>
 
           {/* Telefon Numarası */}
           <div>
-            <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
-              <div className="flex items-center">
-                <svg className="w-5 h-5 mr-2 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                </svg>
-                Telefon Numarası
-              </div>
+            <label htmlFor="phone" className={`flex items-center text-sm font-medium mb-2 ${labelClass}`}>
+              <Phone className={`w-5 h-5 mr-2 ${isGlass ? 'text-indigo-400' : 'text-indigo-600 dark:text-indigo-400'}`} />
+              Telefon Numarası
             </label>
             <input
               type="tel"
@@ -181,23 +162,18 @@ const ContactInfoSettings = () => {
               value={formData.phone}
               onChange={handleInputChange}
               placeholder="+90 xxx xxx xx xx"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
+              className={inputClass}
             />
-            <p className="mt-1 text-sm text-gray-500">
+            <p className={`mt-1 text-sm ${hintClass}`}>
               Bu numara sadece PDF CV'de görünecek, iletişim sayfasında görünmeyecek
             </p>
           </div>
 
           {/* Konum/Adres */}
           <div>
-            <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-2">
-              <div className="flex items-center">
-                <svg className="w-5 h-5 mr-2 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-                Konum/Adres
-              </div>
+            <label htmlFor="location" className={`flex items-center text-sm font-medium mb-2 ${labelClass}`}>
+              <MapPin className={`w-5 h-5 mr-2 ${isGlass ? 'text-indigo-400' : 'text-indigo-600 dark:text-indigo-400'}`} />
+              Konum/Adres
             </label>
             <textarea
               id="location"
@@ -206,24 +182,26 @@ const ContactInfoSettings = () => {
               onChange={handleInputChange}
               placeholder="Örn: İstanbul, Türkiye veya tam adres"
               rows={3}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors resize-none"
+              className={`${inputClass} resize-none`}
             />
-            <p className="mt-1 text-sm text-gray-500">
+            <p className={`mt-1 text-sm ${hintClass}`}>
               İletişim sayfasında görüntülenecek konum veya adres bilgisi
             </p>
           </div>
 
           {/* Bilgilendirme */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <div className={`rounded-xl p-4 ${
+            isGlass
+              ? 'bg-blue-500/10 border border-blue-500/20'
+              : 'bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20'
+          }`}>
             <div className="flex">
               <div className="flex-shrink-0">
-                <svg className="h-5 w-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                </svg>
+                <Info className={`h-5 w-5 ${isGlass ? 'text-blue-400' : 'text-blue-400'}`} />
               </div>
               <div className="ml-3">
-                <h3 className="text-sm font-medium text-blue-800">Bilgi</h3>
-                <div className="mt-2 text-sm text-blue-700">
+                <h3 className={`text-sm font-medium ${isGlass ? 'text-blue-300' : 'text-blue-800 dark:text-blue-300'}`}>Bilgi</h3>
+                <div className={`mt-2 text-sm ${isGlass ? 'text-blue-300/80' : 'text-blue-700 dark:text-blue-300/80'}`}>
                   <ul className="list-disc list-inside space-y-1">
                     <li>Bu bilgiler iletişim sayfasında ziyaretçilere gösterilecektir</li>
                     <li>E-posta adresi otomatik olarak doğrulanacaktır</li>
@@ -236,40 +214,43 @@ const ContactInfoSettings = () => {
           </div>
 
           {/* Önizleme */}
-          <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Önizleme</h3>
+          <div className={`rounded-xl p-6 ${
+            isGlass
+              ? 'bg-white/5 border border-white/10'
+              : 'bg-gray-50 dark:bg-gray-700/30 border border-gray-200 dark:border-gray-700'
+          }`}>
+            <h3 className={`text-lg font-medium mb-4 ${headingClass}`}>Önizleme</h3>
             <div className="space-y-4">
               {formData.email && formData.email.trim() !== '' && (
                 <div className="flex items-start">
-                  <div className="flex-shrink-0 w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center">
-                    <svg className="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                    </svg>
+                  <div className={`flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center ${
+                    isGlass ? 'bg-indigo-500/20' : 'bg-indigo-50 dark:bg-indigo-500/10'
+                  }`}>
+                    <Mail className={`w-6 h-6 ${isGlass ? 'text-indigo-300' : 'text-indigo-600 dark:text-indigo-400'}`} />
                   </div>
                   <div className="ml-4">
-                    <h4 className="text-sm font-medium text-gray-900">E-posta</h4>
-                    <p className="text-gray-600">{formData.email}</p>
+                    <h4 className={`text-sm font-medium ${headingClass}`}>E-posta</h4>
+                    <p className={subTextClass}>{formData.email}</p>
                   </div>
                 </div>
               )}
 
               {formData.location && formData.location.trim() !== '' && (
                 <div className="flex items-start">
-                  <div className="flex-shrink-0 w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center">
-                    <svg className="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
+                  <div className={`flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center ${
+                    isGlass ? 'bg-indigo-500/20' : 'bg-indigo-50 dark:bg-indigo-500/10'
+                  }`}>
+                    <MapPin className={`w-6 h-6 ${isGlass ? 'text-indigo-300' : 'text-indigo-600 dark:text-indigo-400'}`} />
                   </div>
                   <div className="ml-4">
-                    <h4 className="text-sm font-medium text-gray-900">Konum</h4>
-                    <p className="text-gray-600 whitespace-pre-line">{formData.location}</p>
+                    <h4 className={`text-sm font-medium ${headingClass}`}>Konum</h4>
+                    <p className={`${subTextClass} whitespace-pre-line`}>{formData.location}</p>
                   </div>
                 </div>
               )}
 
               {(!formData.email || formData.email.trim() === '') && (!formData.location || formData.location.trim() === '') && (
-                <p className="text-gray-500 text-center py-4">Henüz bilgi girmediniz</p>
+                <p className={`text-center py-4 ${subTextClass}`}>Henüz bilgi girmediniz</p>
               )}
             </div>
           </div>
@@ -279,18 +260,18 @@ const ContactInfoSettings = () => {
             <button
               type="submit"
               disabled={saving}
-              className="px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed font-medium"
+              className="flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
             >
               {saving ? (
-                <span className="flex items-center">
-                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
                   Kaydediliyor...
-                </span>
+                </>
               ) : (
-                'Kaydet'
+                <>
+                  <Save className="w-4 h-4" />
+                  Kaydet
+                </>
               )}
             </button>
           </div>

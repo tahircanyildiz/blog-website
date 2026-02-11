@@ -1,107 +1,243 @@
 import { Link, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { ThemeProvider, useTheme } from '../../contexts/ThemeContext';
+import {
+  LayoutDashboard, FileText, Mail, User, Share2, Phone,
+  Globe, LogOut, Sun, Moon, Sparkles, ChevronLeft, Menu
+} from 'lucide-react';
+import { useState } from 'react';
 
-/**
- * Admin Panel Layout
- * Sidebar ve üst menü içeren ana layout
- */
-function AdminLayout() {
+const menuItems = [
+  { path: '/mrpurposeless', label: 'Dashboard', icon: LayoutDashboard },
+  { path: '/mrpurposeless/blogs', label: 'Blog Yönetimi', icon: FileText },
+  { path: '/mrpurposeless/contacts', label: 'Mesajlar', icon: Mail },
+  { path: '/mrpurposeless/about', label: 'Hakkımda', icon: User },
+  { path: '/mrpurposeless/social-media', label: 'Sosyal Medya', icon: Share2 },
+  { path: '/mrpurposeless/contact-info', label: 'İletişim Bilgileri', icon: Phone },
+];
+
+function ThemeToggle() {
+  const { theme, setTheme } = useTheme();
+
+  const options = [
+    { value: 'light', icon: Sun, label: 'Aydınlık' },
+    { value: 'dark', icon: Moon, label: 'Karanlık' },
+    { value: 'glass', icon: Sparkles, label: 'Cam' },
+  ];
+
+  return (
+    <div className={`flex items-center rounded-xl p-1 gap-0.5 ${
+      theme === 'glass'
+        ? 'bg-white/10'
+        : 'bg-gray-100 dark:bg-gray-700'
+    }`}>
+      {options.map((opt) => {
+        const Icon = opt.icon;
+        const isActive = theme === opt.value;
+        return (
+          <button
+            key={opt.value}
+            onClick={() => setTheme(opt.value)}
+            title={opt.label}
+            className={`p-2 rounded-lg transition-all duration-200 ${
+              isActive
+                ? theme === 'glass'
+                  ? 'bg-white/20 shadow-sm text-indigo-300'
+                  : 'bg-white dark:bg-gray-600 shadow-sm text-indigo-600 dark:text-indigo-400'
+                : theme === 'glass'
+                  ? 'text-indigo-400/50 hover:text-indigo-300'
+                  : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
+            }`}
+          >
+            <Icon className="w-4 h-4" />
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+function AdminLayoutInner() {
   const { user, logout } = useAuth();
+  const { theme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const isGlass = theme === 'glass';
 
   const handleLogout = () => {
     logout();
     navigate('/mrpurposeless/login');
   };
 
-  const menuItems = [
-    { path: '/mrpurposeless', label: 'Dashboard', icon: '📊' },
-    { path: '/mrpurposeless/blogs', label: 'Blog Yönetimi', icon: '📝' },
-    { path: '/mrpurposeless/contacts', label: 'Mesajlar', icon: '✉️' },
-    { path: '/mrpurposeless/about', label: 'Hakkımda', icon: '👤' },
-    { path: '/mrpurposeless/social-media', label: 'Sosyal Medya', icon: '📱' },
-    { path: '/mrpurposeless/contact-info', label: 'İletişim Bilgileri', icon: '📞' },
-  ];
-
   const isActive = (path) => {
-    if (path === '/mrpurposeless') {
-      return location.pathname === path;
-    }
+    if (path === '/mrpurposeless') return location.pathname === path;
     return location.pathname.startsWith(path);
   };
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      {/* Top Navigation */}
-      <nav className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex">
-              <div className="flex-shrink-0 flex items-center">
-                <h1 className="text-xl font-bold text-indigo-600">
-                  Admin Panel
-                </h1>
-              </div>
-            </div>
-            <div className="flex items-center">
-              <span className="text-gray-700 mr-4">
-                {user?.username || user?.email}
-              </span>
-              <button
-                onClick={handleLogout}
-                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
-              >
-                Çıkış Yap
-              </button>
-            </div>
-          </div>
-        </div>
-      </nav>
+    <div className={`min-h-screen transition-colors duration-200 ${
+      isGlass
+        ? 'bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900'
+        : 'bg-gray-50 dark:bg-gray-900'
+    }`}>
+      {/* Glass dekoratif elementler */}
+      {isGlass && (
+        <>
+          <div className="fixed top-1/4 -left-20 w-72 h-72 bg-indigo-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse"></div>
+          <div className="fixed bottom-1/4 -right-20 w-72 h-72 bg-violet-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse" style={{ animationDelay: '2s' }}></div>
+          <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-10"></div>
+        </>
+      )}
 
-      <div className="flex">
-        {/* Sidebar */}
-        <aside className="w-64 bg-white shadow-sm min-h-[calc(100vh-64px)]">
-          <nav className="mt-5 px-2">
-            {menuItems.map((item) => (
+      {/* Mobile overlay */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
+      {/* Sidebar */}
+      <aside className={`fixed inset-y-0 left-0 z-50 w-72 transform transition-transform duration-300 lg:translate-x-0 ${
+        sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+      } ${
+        isGlass
+          ? 'bg-white/10 backdrop-blur-xl border-r border-white/10'
+          : 'bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700'
+      }`}>
+        {/* Sidebar Header */}
+        <div className={`h-16 flex items-center justify-between px-6 border-b ${
+          isGlass ? 'border-white/10' : 'border-gray-200 dark:border-gray-700'
+        }`}>
+          <h1 className="text-lg font-bold bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">
+            Admin Panel
+          </h1>
+          <button
+            onClick={() => setSidebarOpen(false)}
+            className={`lg:hidden ${
+              isGlass ? 'text-indigo-400 hover:text-white' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
+            }`}
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Nav Items */}
+        <nav className="p-4 space-y-1.5">
+          {menuItems.map((item) => {
+            const Icon = item.icon;
+            const active = isActive(item.path);
+            return (
               <Link
                 key={item.path}
                 to={item.path}
-                className={`
-                  group flex items-center px-3 py-3 text-base font-medium rounded-md mb-1
-                  ${
-                    isActive(item.path)
-                      ? 'bg-indigo-100 text-indigo-600'
-                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                  }
-                `}
+                onClick={() => setSidebarOpen(false)}
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
+                  active
+                    ? isGlass
+                      ? 'bg-white/15 text-white shadow-sm'
+                      : 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 shadow-sm'
+                    : isGlass
+                      ? 'text-indigo-300 hover:bg-white/10 hover:text-white'
+                      : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 hover:text-gray-900 dark:hover:text-gray-200'
+                }`}
               >
-                <span className="mr-3 text-xl">{item.icon}</span>
+                <Icon className={`w-5 h-5 ${
+                  active
+                    ? isGlass ? 'text-indigo-300' : 'text-indigo-600 dark:text-indigo-400'
+                    : ''
+                }`} />
                 {item.label}
               </Link>
-            ))}
+            );
+          })}
+        </nav>
 
-            {/* Public Site Link */}
-            <div className="border-t border-gray-200 mt-4 pt-4">
-              <a
-                href="/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group flex items-center px-3 py-3 text-base font-medium rounded-md text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+        {/* Sidebar Footer */}
+        <div className={`absolute bottom-0 left-0 right-0 p-4 border-t ${
+          isGlass ? 'border-white/10' : 'border-gray-200 dark:border-gray-700'
+        }`}>
+          <a
+            href="/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
+              isGlass
+                ? 'text-indigo-300 hover:bg-white/10 hover:text-white'
+                : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 hover:text-gray-900 dark:hover:text-gray-200'
+            }`}
+          >
+            <Globe className="w-5 h-5" />
+            Siteyi Görüntüle
+          </a>
+        </div>
+      </aside>
+
+      {/* Main Content */}
+      <div className="lg:pl-72">
+        {/* Top Bar */}
+        <header className={`sticky top-0 z-30 h-16 backdrop-blur-xl border-b ${
+          isGlass
+            ? 'bg-white/5 border-white/10'
+            : 'bg-white/80 dark:bg-gray-800/80 border-gray-200 dark:border-gray-700'
+        }`}>
+          <div className="flex items-center justify-between h-full px-4 sm:px-6">
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className={`lg:hidden p-2 rounded-lg ${
+                isGlass
+                  ? 'text-indigo-400 hover:text-white hover:bg-white/10'
+                  : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+              }`}
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+
+            <div className="hidden lg:block" />
+
+            <div className="flex items-center gap-3 sm:gap-4">
+              <ThemeToggle />
+
+              <div className={`hidden sm:block h-6 w-px ${
+                isGlass ? 'bg-white/20' : 'bg-gray-200 dark:bg-gray-700'
+              }`} />
+
+              <span className={`hidden sm:block text-sm font-medium ${
+                isGlass ? 'text-indigo-300' : 'text-gray-600 dark:text-gray-400'
+              }`}>
+                {user?.username || user?.email}
+              </span>
+
+              <button
+                onClick={handleLogout}
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-colors ${
+                  isGlass
+                    ? 'bg-red-500/20 text-red-300 hover:bg-red-500/30'
+                    : 'bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-500/20'
+                }`}
               >
-                <span className="mr-3 text-xl">🌐</span>
-                Siteyi Görüntüle
-              </a>
+                <LogOut className="w-4 h-4" />
+                <span className="hidden sm:inline">Çıkış</span>
+              </button>
             </div>
-          </nav>
-        </aside>
+          </div>
+        </header>
 
-        {/* Main Content */}
-        <main className="flex-1 p-6">
+        {/* Page Content */}
+        <main className="p-4 sm:p-6 lg:p-8 relative z-10">
           <Outlet />
         </main>
       </div>
     </div>
+  );
+}
+
+function AdminLayout() {
+  return (
+    <ThemeProvider>
+      <AdminLayoutInner />
+    </ThemeProvider>
   );
 }
 

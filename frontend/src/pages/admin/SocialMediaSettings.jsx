@@ -1,16 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { getSettings, updateSocialMedia } from '../../services/api';
+import { useTheme } from '../../contexts/ThemeContext';
 import SocialMediaIcon from '../../components/SocialMediaIcon';
-import Loading from '../../components/Loading';
-import ErrorMessage from '../../components/ErrorMessage';
+import { Info, Save } from 'lucide-react';
 
 const SocialMediaSettings = () => {
+  const { theme } = useTheme();
+  const isGlass = theme === 'glass';
+
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(false);
+  const [notification, setNotification] = useState({ show: false, message: '', type: '' });
 
-  // Tüm desteklenen platformlar
   const platforms = [
     { id: 'github', name: 'GitHub', placeholder: 'https://github.com/username' },
     { id: 'linkedin', name: 'LinkedIn', placeholder: 'https://linkedin.com/in/username' },
@@ -26,8 +27,12 @@ const SocialMediaSettings = () => {
     { id: 'email', name: 'Email', placeholder: 'mailto:your-email@example.com' },
   ];
 
-  // Form state - her platform için URL
   const [socialMediaData, setSocialMediaData] = useState({});
+
+  const showNotification = (message, type) => {
+    setNotification({ show: true, message, type });
+    setTimeout(() => setNotification({ show: false, message: '', type: '' }), 3000);
+  };
 
   useEffect(() => {
     fetchSettings();
@@ -36,10 +41,7 @@ const SocialMediaSettings = () => {
   const fetchSettings = async () => {
     try {
       setLoading(true);
-      setError(null);
       const response = await getSettings();
-
-      // Mevcut verileri forma yükle
       const data = {};
       if (response.data && response.data.socialMedia) {
         response.data.socialMedia.forEach(item => {
@@ -48,7 +50,7 @@ const SocialMediaSettings = () => {
       }
       setSocialMediaData(data);
     } catch (err) {
-      setError(err.response?.data?.message || 'Ayarlar yüklenirken bir hata oluştu');
+      showNotification(err.response?.data?.message || 'Ayarlar yüklenirken bir hata oluştu', 'error');
     } finally {
       setLoading(false);
     }
@@ -63,13 +65,8 @@ const SocialMediaSettings = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     try {
       setSaving(true);
-      setError(null);
-      setSuccess(false);
-
-      // Sadece dolu olan platformları gönder
       const socialMedia = Object.entries(socialMediaData)
         .filter(([_, url]) => url && url.trim() !== '')
         .map(([platform, url]) => ({
@@ -79,57 +76,59 @@ const SocialMediaSettings = () => {
         }));
 
       await updateSocialMedia(socialMedia);
-
-      setSuccess(true);
-
-      // 3 saniye sonra başarı mesajını kaldır
-      setTimeout(() => {
-        setSuccess(false);
-      }, 3000);
-
+      showNotification('Sosyal medya ayarları başarıyla güncellendi!', 'success');
     } catch (err) {
-      setError(err.response?.data?.message || 'Kaydetme sırasında bir hata oluştu');
+      showNotification(err.response?.data?.message || 'Kaydetme sırasında bir hata oluştu', 'error');
     } finally {
       setSaving(false);
     }
   };
 
+  const cardClass = isGlass
+    ? 'bg-white/10 backdrop-blur-xl border border-white/10 rounded-2xl'
+    : 'bg-white dark:bg-gray-800 shadow-sm border border-gray-200 dark:border-gray-700 rounded-2xl';
+  const headingClass = isGlass ? 'text-white' : 'text-gray-900 dark:text-white';
+  const subTextClass = isGlass ? 'text-indigo-300' : 'text-gray-600 dark:text-gray-400';
+  const labelClass = isGlass ? 'text-indigo-200' : 'text-gray-700 dark:text-gray-300';
+  const inputClass = isGlass
+    ? 'w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white placeholder-indigo-400/50 focus:outline-none focus:ring-2 focus:ring-indigo-500'
+    : 'w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors';
+
   if (loading) {
-    return <Loading />;
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+      </div>
+    );
   }
 
   return (
     <div className="max-w-4xl mx-auto">
-      <div className="bg-white rounded-lg shadow-lg p-8">
+      {/* Bildirim */}
+      {notification.show && (
+        <div className={`fixed top-6 right-6 z-50 px-6 py-4 rounded-xl shadow-2xl text-white text-sm font-medium transition-all duration-300 ${
+          notification.type === 'success' ? 'bg-green-500' : 'bg-red-500'
+        }`}>
+          {notification.message}
+        </div>
+      )}
+
+      <div className={`${cardClass} p-8`}>
         {/* Başlık */}
         <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Sosyal Medya Ayarları</h1>
-          <p className="text-gray-600">
+          <h1 className={`text-3xl font-bold mb-2 ${headingClass}`}>Sosyal Medya Ayarları</h1>
+          <p className={subTextClass}>
             Sosyal medya hesaplarınızı buradan yönetebilirsiniz. Sadece doldurduğunuz alanlar footer ve iletişim sayfasında görünecektir.
           </p>
         </div>
-
-        {/* Başarı Mesajı */}
-        {success && (
-          <div className="mb-6 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg">
-            Sosyal medya ayarları başarıyla güncellendi!
-          </div>
-        )}
-
-        {/* Hata Mesajı */}
-        {error && (
-          <div className="mb-6">
-            <ErrorMessage message={error} />
-          </div>
-        )}
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {platforms.map(platform => (
               <div key={platform.id} className="space-y-2">
-                <label className="flex items-center text-sm font-medium text-gray-700">
-                  <div className="mr-2 text-primary-600">
+                <label className={`flex items-center text-sm font-medium ${labelClass}`}>
+                  <div className={`mr-2 ${isGlass ? 'text-indigo-400' : 'text-indigo-600 dark:text-indigo-400'}`}>
                     <SocialMediaIcon platform={platform.id} className="w-5 h-5" />
                   </div>
                   {platform.name}
@@ -139,23 +138,25 @@ const SocialMediaSettings = () => {
                   value={socialMediaData[platform.id] || ''}
                   onChange={(e) => handleInputChange(platform.id, e.target.value)}
                   placeholder={platform.placeholder}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
+                  className={inputClass}
                 />
               </div>
             ))}
           </div>
 
           {/* Bilgilendirme */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <div className={`rounded-xl p-4 ${
+            isGlass
+              ? 'bg-blue-500/10 border border-blue-500/20'
+              : 'bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20'
+          }`}>
             <div className="flex">
               <div className="flex-shrink-0">
-                <svg className="h-5 w-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                </svg>
+                <Info className={`h-5 w-5 ${isGlass ? 'text-blue-400' : 'text-blue-400 dark:text-blue-400'}`} />
               </div>
               <div className="ml-3">
-                <h3 className="text-sm font-medium text-blue-800">Bilgi</h3>
-                <div className="mt-2 text-sm text-blue-700">
+                <h3 className={`text-sm font-medium ${isGlass ? 'text-blue-300' : 'text-blue-800 dark:text-blue-300'}`}>Bilgi</h3>
+                <div className={`mt-2 text-sm ${isGlass ? 'text-blue-300/80' : 'text-blue-700 dark:text-blue-300/80'}`}>
                   <ul className="list-disc list-inside space-y-1">
                     <li>URL'leri tam olarak girin (https:// ile başlayarak)</li>
                     <li>Email için "mailto:email@example.com" formatını kullanın</li>
@@ -172,18 +173,18 @@ const SocialMediaSettings = () => {
             <button
               type="submit"
               disabled={saving}
-              className="px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed font-medium"
+              className="flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
             >
               {saving ? (
-                <span className="flex items-center">
-                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
                   Kaydediliyor...
-                </span>
+                </>
               ) : (
-                'Kaydet'
+                <>
+                  <Save className="w-4 h-4" />
+                  Kaydet
+                </>
               )}
             </button>
           </div>
