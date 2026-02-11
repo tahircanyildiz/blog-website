@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const Blog = require('../models/Blog');
 const { validationResult } = require('express-validator');
 
@@ -29,7 +30,11 @@ exports.getAllBlogs = async (req, res, next) => {
  */
 exports.getBlogById = async (req, res, next) => {
   try {
-    const blog = await Blog.findById(req.params.id);
+    const param = req.params.id;
+    const isObjectId = mongoose.Types.ObjectId.isValid(param);
+    const blog = isObjectId
+      ? await Blog.findById(param)
+      : await Blog.findOne({ slug: param });
 
     if (!blog) {
       return res.status(404).json({
@@ -47,7 +52,6 @@ exports.getBlogById = async (req, res, next) => {
       data: blog
     });
   } catch (error) {
-    // Geçersiz ObjectId hatası
     if (error.kind === 'ObjectId') {
       return res.status(404).json({
         success: false,

@@ -11,7 +11,7 @@ import 'react-quill/dist/quill.snow.css'; // Quill stillerini yükle
  * Tek bir blog yazısının tüm içeriğini gösterir
  */
 function BlogDetail() {
-  const { id } = useParams(); // URL'den blog ID'sini al
+  const { slug } = useParams(); // URL'den blog slug'ını al
   const navigate = useNavigate();
   const [blog, setBlog] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -20,13 +20,13 @@ function BlogDetail() {
   // Sayfa yüklendiğinde blog detayını çek
   useEffect(() => {
     fetchBlogDetail();
-  }, [id]);
+  }, [slug]);
 
   const fetchBlogDetail = async () => {
     try {
       setLoading(true);
       setError(null);
-      const response = await getBlogById(id);
+      const response = await getBlogById(slug);
       setBlog(response.data);
     } catch (err) {
       setError(err.response?.data?.message || 'Blog yazısı yüklenemedi');

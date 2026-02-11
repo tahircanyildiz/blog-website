@@ -12,7 +12,7 @@ exports.getSitemap = async (req, res, next) => {
     
     // Tüm blog yazılarını çek
     const blogs = await Blog.find()
-      .select('_id publishDate updatedAt')
+      .select('slug publishDate updatedAt')
       .sort({ publishDate: -1 });
 
     // Statik sayfalar
@@ -40,7 +40,7 @@ exports.getSitemap = async (req, res, next) => {
     blogs.forEach(blog => {
       const lastmod = blog.updatedAt || blog.publishDate;
       xml += '  <url>\n';
-      xml += `    <loc>${siteUrl}/blog/${blog._id}</loc>\n`;
+      xml += `    <loc>${siteUrl}/blog/${blog.slug}</loc>\n`;
       xml += `    <lastmod>${new Date(lastmod).toISOString().split('T')[0]}</lastmod>\n`;
       xml += `    <changefreq>monthly</changefreq>\n`;
       xml += `    <priority>0.8</priority>\n`;

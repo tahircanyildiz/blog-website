@@ -45,7 +45,7 @@ function App() {
         if (blogs && blogs.length > 0) {
           const topBlogs = blogs.slice(0, 3);
           await Promise.all(
-            topBlogs.map(blog => getBlogById(blog._id))
+            topBlogs.map(blog => getBlogById(blog.slug))
           );
         }
       } catch (error) {
@@ -99,7 +99,7 @@ function App() {
             }
           />
           <Route
-            path="/blog/:id"
+            path="/blog/:slug"
             element={
               <div className="flex flex-col min-h-screen">
                 <Navbar />

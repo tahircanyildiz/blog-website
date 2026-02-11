@@ -85,7 +85,7 @@ function BlogList() {
             {blogs.map((blog) => (
               <Link
                 key={blog._id}
-                to={`/blog/${blog._id}`}
+                to={`/blog/${blog.slug}`}
                 className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300
                          transform hover:-translate-y-2 overflow-hidden group border border-blue-100"
               >
