@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { BookOpen, Calendar, Eye, FileText, ArrowRight, Clock } from 'lucide-react';
+import { BookOpen, Calendar, Eye, FileText, ArrowRight } from 'lucide-react';
 import { getAllBlogs } from '../services/api';
 import Loading from '../components/Loading';
 import ErrorMessage from '../components/ErrorMessage';
@@ -37,14 +37,6 @@ function BlogList() {
       month: 'long',
       day: 'numeric',
     });
-  };
-
-  // Tahmini okuma süresi (kelime sayısına göre)
-  const getReadingTime = (content) => {
-    if (!content) return 1;
-    const text = content.replace(/<[^>]*>/g, '');
-    const words = text.split(/\s+/).length;
-    return Math.max(1, Math.ceil(words / 200));
   };
 
   if (loading) return <Loading />;
@@ -120,8 +112,8 @@ function BlogList() {
                             {formatDate(featuredBlog.publishDate)}
                           </span>
                           <span className="flex items-center gap-1">
-                            <Clock className="w-4 h-4" />
-                            {getReadingTime(featuredBlog.content)} dk
+                            <Eye className="w-4 h-4" />
+                            {featuredBlog.viewCount || 0} görüntülenme
                           </span>
                         </div>
                       </div>
@@ -148,11 +140,7 @@ function BlogList() {
                         )}
                       </div>
 
-                      <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                        <div className="flex items-center gap-1 text-sm text-gray-400">
-                          <Eye className="w-4 h-4" />
-                          {featuredBlog.viewCount || 0} görüntülenme
-                        </div>
+                      <div className="flex items-center justify-end pt-4 border-t border-gray-100">
                         <span className="flex items-center gap-1 text-sm font-semibold text-blue-600 group-hover:text-violet-600 transition-colors">
                           Devamını Oku
                           <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" />
@@ -192,16 +180,10 @@ function BlogList() {
 
                       {/* Alt Bilgiler */}
                       <div className="flex items-center justify-between text-xs text-gray-400 pt-3 border-t border-gray-50 mt-auto">
-                        <div className="flex items-center gap-3">
-                          <span className="flex items-center gap-1">
-                            <Calendar className="w-3.5 h-3.5" />
-                            {formatDate(blog.publishDate)}
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <Clock className="w-3.5 h-3.5" />
-                            {getReadingTime(blog.content)} dk
-                          </span>
-                        </div>
+                        <span className="flex items-center gap-1">
+                          <Calendar className="w-3.5 h-3.5" />
+                          {formatDate(blog.publishDate)}
+                        </span>
                         <span className="flex items-center gap-1">
                           <Eye className="w-3.5 h-3.5" />
                           {blog.viewCount || 0}
