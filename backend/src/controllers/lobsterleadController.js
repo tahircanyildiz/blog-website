@@ -53,7 +53,15 @@ exports.publishBlog = async (req, res, next) => {
       data: {
         id: blog._id,
         title: blog.title,
+        content: blog.content,
+        shortDescription: blog.shortDescription,
+        metaDescription: blog.metaDescription,
+        status: blog.status,
+        seoKeywords: blog.seoKeywords,
+        coverImage: blog.coverImage,
+        coverImageAlt: blog.coverImageAlt,
         slug: blog.slug,
+        tags: blog.tags,
         publishDate: blog.publishDate
       }
     });
@@ -117,7 +125,15 @@ exports.updateBlog = async (req, res, next) => {
       data: {
         id: blog._id,
         title: blog.title,
+        content: blog.content,
+        shortDescription: blog.shortDescription,
+        metaDescription: blog.metaDescription,
+        status: blog.status,
+        seoKeywords: blog.seoKeywords,
+        coverImage: blog.coverImage,
+        coverImageAlt: blog.coverImageAlt,
         slug: blog.slug,
+        tags: blog.tags,
         publishDate: blog.publishDate
       }
     });
