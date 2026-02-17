@@ -1,91 +1,109 @@
-import { Link, NavLink } from 'react-router-dom';
+import { Link, NavLink, useLocation } from 'react-router-dom';
 import { useState } from 'react';
+import { useScrollSpy } from '../hooks/useScrollSpy';
+import { useSmoothScroll } from '../hooks/useSmoothScroll';
 
 /**
  * Navbar bileşeni - Tüm sayfalarda görünür
- * Responsive tasarım: Mobilde hamburger menü
+ * Landing page'de scroll navigation, diğer sayfalarda router navigation
  */
 function Navbar() {
+  const location = useLocation();
+  const scrollToSection = useSmoothScroll();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  // Menü öğelerini toggle et
+  // Landing page'de miyiz kontrol et
+  const isLandingPage = location.pathname === '/';
+
+  // Scroll spy - sadece landing page'de aktif
+  const activeSection = useScrollSpy(isLandingPage ? ['home', 'about', 'blog', 'contact'] : []);
+
+  // Section navigation items
+  const sections = [
+    { id: 'home', label: 'Ana Sayfa' },
+    { id: 'about', label: 'Hakkımda' }
+  ];
+
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
-  // Menü linkine tıklandığında menüyü kapat (mobil)
   const closeMenu = () => {
     setIsMenuOpen(false);
   };
 
+  // Scroll navigation handler
+  const handleSectionClick = (e, sectionId) => {
+    e.preventDefault();
+    if (!isLandingPage) {
+      // Eğer landing page'de değilsek, önce ana sayfaya git
+      window.location.href = `/#${sectionId}`;
+    } else {
+      scrollToSection(sectionId);
+      closeMenu();
+    }
+  };
+
   return (
-    <nav className="bg-white/80 backdrop-blur-md shadow-lg sticky top-0 z-50 border-b border-blue-100">
+    <nav className="bg-gradient-to-r from-[#40916c] to-[#2d6a4f] backdrop-blur-md shadow-lg sticky top-0 z-50 border-b border-[#1b4332]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          {/* Logo / Site Adı */}
-          <Link
-            to="/"
-            className="flex items-center space-x-3 group"
-          >
-            {/* Kendi logonuz - public/logo.png dosyasını kullanacak */}
+          {/* Logo */}
+          <Link to="/" className="flex items-center space-x-3 group">
             <img
               src="/logonew.png"
               alt="Logo"
               className="h-12 w-18 object-contain group-hover:scale-125 transition-transform duration-300"
             />
-            {/* <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text text-transparent">
-              Portfolio
-            </span> */}
           </Link>
 
           {/* Desktop Menü */}
           <div className="hidden md:flex space-x-8">
-            <NavLink
-              to="/"
-              className={({ isActive }) =>
-                `text-gray-700 hover:text-blue-600 transition-colors font-semibold ${
-                  isActive ? 'text-blue-600 border-b-2 border-blue-600' : ''
-                }`
-              }
-            >
-              Anasayfa
-            </NavLink>
-            <NavLink
-              to="/about"
-              className={({ isActive }) =>
-                `text-gray-700 hover:text-blue-600 transition-colors font-semibold ${
-                  isActive ? 'text-blue-600 border-b-2 border-blue-600' : ''
-                }`
-              }
-            >
-              Hakkımda
-            </NavLink>
+            {/* Section Navigation (Ana Sayfa, Hakkımda) */}
+            {sections.map(section => {
+              const isActive = isLandingPage && activeSection === section.id;
+              return (
+                <a
+                  key={section.id}
+                  href={`#${section.id}`}
+                  onClick={(e) => handleSectionClick(e, section.id)}
+                  className={`text-white/90 hover:text-white transition-colors font-semibold ${
+                    isActive ? 'text-white border-b-2 border-white' : ''
+                  }`}
+                >
+                  {section.label}
+                </a>
+              );
+            })}
+
+            {/* Blog - Router Navigation */}
             <NavLink
               to="/blog"
               className={({ isActive }) =>
-                `text-gray-700 hover:text-blue-600 transition-colors font-semibold ${
-                  isActive ? 'text-blue-600 border-b-2 border-blue-600' : ''
+                `text-white/90 hover:text-white transition-colors font-semibold ${
+                  isActive ? 'text-white border-b-2 border-white' : ''
                 }`
               }
             >
               Blog
             </NavLink>
-            <NavLink
-              to="/contact"
-              className={({ isActive }) =>
-                `text-gray-700 hover:text-blue-600 transition-colors font-semibold ${
-                  isActive ? 'text-blue-600 border-b-2 border-blue-600' : ''
-                }`
-              }
+
+            {/* İletişim - Scroll Navigation */}
+            <a
+              href="#contact"
+              onClick={(e) => handleSectionClick(e, 'contact')}
+              className={`text-white/90 hover:text-white transition-colors font-semibold ${
+                isLandingPage && activeSection === 'contact' ? 'text-white border-b-2 border-white' : ''
+              }`}
             >
               İletişim
-            </NavLink>
+            </a>
           </div>
 
           {/* Mobil Menü Butonu */}
           <button
             onClick={toggleMenu}
-            className="md:hidden p-2 rounded-xl text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-all"
+            className="md:hidden p-2 rounded-xl text-white hover:text-white hover:bg-white/20 transition-all"
             aria-label="Menü"
           >
             <svg
@@ -110,50 +128,46 @@ function Navbar() {
         {isMenuOpen && (
           <div className="md:hidden pb-4">
             <div className="flex flex-col space-y-2">
-              <NavLink
-                to="/"
-                onClick={closeMenu}
-                className={({ isActive }) =>
-                  `px-4 py-2.5 rounded-xl text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-all font-semibold ${
-                    isActive ? 'bg-gradient-to-r from-blue-50 to-violet-50 text-blue-600 shadow-sm' : ''
-                  }`
-                }
-              >
-                Anasayfa
-              </NavLink>
-              <NavLink
-                to="/about"
-                onClick={closeMenu}
-                className={({ isActive }) =>
-                  `px-4 py-2.5 rounded-xl text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-all font-semibold ${
-                    isActive ? 'bg-gradient-to-r from-blue-50 to-violet-50 text-blue-600 shadow-sm' : ''
-                  }`
-                }
-              >
-                Hakkımda
-              </NavLink>
+              {/* Section Navigation */}
+              {sections.map(section => {
+                const isActive = isLandingPage && activeSection === section.id;
+                return (
+                  <a
+                    key={section.id}
+                    href={`#${section.id}`}
+                    onClick={(e) => handleSectionClick(e, section.id)}
+                    className={`px-4 py-2.5 rounded-xl text-white hover:bg-white/20 transition-all font-semibold ${
+                      isActive ? 'bg-white/30 shadow-sm' : ''
+                    }`}
+                  >
+                    {section.label}
+                  </a>
+                );
+              })}
+
+              {/* Blog - Router Navigation */}
               <NavLink
                 to="/blog"
                 onClick={closeMenu}
                 className={({ isActive }) =>
-                  `px-4 py-2.5 rounded-xl text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-all font-semibold ${
-                    isActive ? 'bg-gradient-to-r from-blue-50 to-violet-50 text-blue-600 shadow-sm' : ''
+                  `px-4 py-2.5 rounded-xl text-white hover:bg-white/20 transition-all font-semibold ${
+                    isActive ? 'bg-white/30 shadow-sm' : ''
                   }`
                 }
               >
                 Blog
               </NavLink>
-              <NavLink
-                to="/contact"
-                onClick={closeMenu}
-                className={({ isActive }) =>
-                  `px-4 py-2.5 rounded-xl text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-all font-semibold ${
-                    isActive ? 'bg-gradient-to-r from-blue-50 to-violet-50 text-blue-600 shadow-sm' : ''
-                  }`
-                }
+
+              {/* İletişim - Scroll Navigation */}
+              <a
+                href="#contact"
+                onClick={(e) => handleSectionClick(e, 'contact')}
+                className={`px-4 py-2.5 rounded-xl text-white hover:bg-white/20 transition-all font-semibold ${
+                  isLandingPage && activeSection === 'contact' ? 'bg-white/30 shadow-sm' : ''
+                }`}
               >
                 İletişim
-              </NavLink>
+              </a>
             </div>
           </div>
         )}

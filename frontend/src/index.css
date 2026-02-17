@@ -12,6 +12,7 @@
 
 html {
   scroll-behavior: smooth;
+  scroll-padding-top: 80px; /* Navbar offset for anchor scrolling */
 }
 
 body {
@@ -105,6 +106,125 @@ body {
 
 .animation-delay-4000 {
   animation-delay: 4s;
+}
+
+/* ===== Scroll Animations ===== */
+
+/* Fade In Up - Default scroll animation */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeInUp {
+  animation: fadeInUp 0.6s ease-out both;
+}
+
+/* Fade In Down - For section headers */
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeInDown {
+  animation: fadeInDown 0.6s ease-out both;
+}
+
+/* Fade In Left - For left column content */
+@keyframes fadeInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-fadeInLeft {
+  animation: fadeInLeft 0.7s ease-out both;
+}
+
+/* Fade In Right - For right column content */
+@keyframes fadeInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-fadeInRight {
+  animation: fadeInRight 0.7s ease-out both;
+}
+
+/* Scale In - For icons and images */
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-scaleIn {
+  animation: scaleIn 0.5s ease-out both;
+}
+
+/* Stagger Delay Utilities - For sequential animations */
+.stagger-1 { animation-delay: 0.1s; }
+.stagger-2 { animation-delay: 0.2s; }
+.stagger-3 { animation-delay: 0.3s; }
+.stagger-4 { animation-delay: 0.4s; }
+.stagger-5 { animation-delay: 0.5s; }
+.stagger-6 { animation-delay: 0.6s; }
+.stagger-7 { animation-delay: 0.7s; }
+.stagger-8 { animation-delay: 0.8s; }
+
+/* Dynamic stagger using CSS variables */
+.stagger-item {
+  animation-delay: var(--stagger-delay, 0s);
+}
+
+/* ===== Reduced Motion Support ===== */
+@media (prefers-reduced-motion: reduce) {
+  .animate-fadeIn,
+  .animate-fadeInUp,
+  .animate-fadeInDown,
+  .animate-fadeInLeft,
+  .animate-fadeInRight,
+  .animate-scaleIn {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .animate-blob {
+    animation: none !important;
+  }
+
+  html {
+    scroll-behavior: auto !important;
+  }
 }
 
 /* Focus Visible */

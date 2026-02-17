@@ -5,11 +5,9 @@ import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
 import GoogleAnalytics from './components/GoogleAnalytics';
-import Home from './pages/Home';
-import About from './pages/About';
+import LandingPage from './pages/LandingPage';
 import BlogList from './pages/BlogList';
 import BlogDetail from './pages/BlogDetail';
-import Contact from './pages/Contact';
 import Login from './pages/Login';
 import AdminLayout from './pages/admin/AdminLayout';
 import Dashboard from './pages/admin/Dashboard';
@@ -62,30 +60,21 @@ function App() {
         <GoogleAnalytics />
         <Routes>
           {/* Public Routes - Normal kullanıcı sayfaları */}
+          {/* Landing Page - Ana Sayfa, Hakkımda ve İletişim tek sayfada */}
           <Route
             path="/"
             element={
               <div className="flex flex-col min-h-screen">
                 <Navbar />
                 <main className="flex-grow">
-                  <Home />
+                  <LandingPage />
                 </main>
                 <Footer />
               </div>
             }
           />
-          <Route
-            path="/about"
-            element={
-              <div className="flex flex-col min-h-screen">
-                <Navbar />
-                <main className="flex-grow">
-                  <About />
-                </main>
-                <Footer />
-              </div>
-            }
-          />
+
+          {/* Blog Routes - Ayrı sayfalar */}
           <Route
             path="/blog"
             element={
@@ -105,18 +94,6 @@ function App() {
                 <Navbar />
                 <main className="flex-grow">
                   <BlogDetail />
-                </main>
-                <Footer />
-              </div>
-            }
-          />
-          <Route
-            path="/contact"
-            element={
-              <div className="flex flex-col min-h-screen">
-                <Navbar />
-                <main className="flex-grow">
-                  <Contact />
                 </main>
                 <Footer />
               </div>
