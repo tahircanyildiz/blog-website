@@ -260,3 +260,104 @@ body {
   -ms-user-select: text;
   user-select: text;
 }
+
+/* ==========================================
+   LobsterLead İçerik Stilleri
+   ========================================== */
+
+/* Prose sınıfı override'larını kaldır - inline style'lara öncelik ver */
+.ql-editor table,
+.ql-editor thead,
+.ql-editor tbody,
+.ql-editor tr,
+.ql-editor th,
+.ql-editor td {
+  all: revert;
+}
+
+.ql-editor table {
+  width: 100% !important;
+  border-collapse: collapse;
+  margin: 20px 0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.ql-editor th,
+.ql-editor td {
+  padding: 12px 16px;
+  line-height: 1.6;
+  color: inherit;
+}
+
+/* Tablolar mobilde responsive */
+@media (max-width: 640px) {
+  .ql-editor table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .ql-editor th,
+  .ql-editor td {
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+}
+
+/* İçindekiler navigasyonu */
+.ql-editor nav,
+.ql-editor .ll-content-nav {
+  margin: 32px 0;
+  border-radius: 8px;
+}
+
+.ql-editor nav ul {
+  list-style: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.ql-editor nav li {
+  margin: 10px 0;
+}
+
+/* FAQ bölümü */
+.ql-editor .ll-faq-section {
+  margin: 40px 0;
+  border-radius: 12px;
+}
+
+.ql-editor .ll-faq-section h3 {
+  margin-top: 0 !important;
+}
+
+/* E-A-T sinyalleri */
+.ql-editor .ll-eat-signals {
+  margin: 40px 0;
+  border-radius: 12px;
+}
+
+.ql-editor .ll-eat-signals h2 {
+  margin-top: 0 !important;
+}
+
+/* CTA bölümü */
+.ql-editor .cta-section {
+  margin: 40px auto;
+  border-radius: 16px;
+  text-align: center;
+}
+
+/* Prose sınıfının div, nav, section gibi elementleri bozmasını engelle */
+.ql-editor div[style],
+.ql-editor nav[style],
+.ql-editor section[style] {
+  all: revert;
+}
+
+/* JSON-LD script'leri ve style tag'larını gizle */
+.ql-editor script,
+.ql-editor style {
+  display: none;
+}

@@ -115,7 +115,7 @@ function BlogDetail() {
 
           {/* Kısa açıklama */}
           <p className="mt-4 sm:mt-5 text-blue-100 text-base sm:text-lg md:text-xl leading-relaxed max-w-3xl break-words">
-            {blog.shortDescription}
+            {blog.metaDescription || blog.shortDescription}
           </p>
 
           {/* Meta bilgiler satırı */}
@@ -137,6 +137,20 @@ function BlogDetail() {
           </div>
         </div>
       </div>
+
+      {/* Cover Image */}
+      {blog.coverImage && (
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 sm:-mt-12">
+          <div className="rounded-2xl overflow-hidden shadow-2xl">
+            <img
+              src={blog.coverImage}
+              alt={blog.coverImageAlt || blog.title}
+              className="w-full h-auto object-cover select-none pointer-events-none"
+              loading="eager"
+            />
+          </div>
+        </div>
+      )}
 
       {/* İçerik Alanı - Sidebar ile */}
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">

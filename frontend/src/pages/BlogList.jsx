@@ -95,28 +95,59 @@ function BlogList() {
               >
                 <div className="bg-white rounded-3xl shadow-md hover:shadow-2xl transition-all duration-500 overflow-hidden border border-gray-100 hover:border-blue-200">
                   <div className="md:flex">
-                    {/* Sol - gradient banner */}
-                    <div className="md:w-2/5 bg-gradient-to-br from-blue-600 via-violet-600 to-purple-600 p-6 sm:p-8 md:p-10 flex flex-col justify-center relative overflow-hidden">
-                      <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
-                      <div className="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2"></div>
-                      <div className="relative z-10">
-                        <span className="inline-block px-3 py-1 bg-white/20 backdrop-blur-sm text-white text-xs font-bold rounded-full mb-4 tracking-wider uppercase">
-                          Son Yazı
-                        </span>
-                        <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-white leading-tight break-words">
-                          {featuredBlog.title}
-                        </h2>
-                        <div className="flex items-center gap-4 mt-4 text-blue-100 text-sm">
-                          <span className="flex items-center gap-1">
-                            <Calendar className="w-4 h-4" />
-                            {formatDate(featuredBlog.publishDate)}
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <Eye className="w-4 h-4" />
-                            {featuredBlog.viewCount || 0} görüntülenme
-                          </span>
+                    {/* Sol - cover image veya gradient banner */}
+                    <div className="md:w-2/5 relative overflow-hidden">
+                      {featuredBlog.coverImage ? (
+                        <div className="h-full min-h-[240px] md:min-h-full relative">
+                          <img
+                            src={featuredBlog.coverImage}
+                            alt={featuredBlog.coverImageAlt || featuredBlog.title}
+                            className="absolute inset-0 w-full h-full object-cover"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                          <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-8 md:p-10 z-10">
+                            <span className="inline-block px-3 py-1 bg-white/20 backdrop-blur-sm text-white text-xs font-bold rounded-full mb-3 tracking-wider uppercase">
+                              Son Yazı
+                            </span>
+                            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-white leading-tight break-words">
+                              {featuredBlog.title}
+                            </h2>
+                            <div className="flex items-center gap-4 mt-3 text-white/80 text-sm">
+                              <span className="flex items-center gap-1">
+                                <Calendar className="w-4 h-4" />
+                                {formatDate(featuredBlog.publishDate)}
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <Eye className="w-4 h-4" />
+                                {featuredBlog.viewCount || 0} görüntülenme
+                              </span>
+                            </div>
+                          </div>
                         </div>
-                      </div>
+                      ) : (
+                        <div className="h-full bg-gradient-to-br from-blue-600 via-violet-600 to-purple-600 p-6 sm:p-8 md:p-10 flex flex-col justify-center">
+                          <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+                          <div className="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2"></div>
+                          <div className="relative z-10">
+                            <span className="inline-block px-3 py-1 bg-white/20 backdrop-blur-sm text-white text-xs font-bold rounded-full mb-4 tracking-wider uppercase">
+                              Son Yazı
+                            </span>
+                            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-white leading-tight break-words">
+                              {featuredBlog.title}
+                            </h2>
+                            <div className="flex items-center gap-4 mt-4 text-blue-100 text-sm">
+                              <span className="flex items-center gap-1">
+                                <Calendar className="w-4 h-4" />
+                                {formatDate(featuredBlog.publishDate)}
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <Eye className="w-4 h-4" />
+                                {featuredBlog.viewCount || 0} görüntülenme
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
 
                     {/* Sağ - içerik */}
@@ -162,11 +193,20 @@ function BlogList() {
                     className="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300
                              transform hover:-translate-y-1 overflow-hidden group border border-gray-100 hover:border-blue-200 flex flex-col"
                   >
-                    {/* Üst gradient çizgi */}
-                    <div className="h-1 bg-gradient-to-r from-blue-500 to-violet-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    {/* Cover Image veya gradient çizgi */}
+                    {blog.coverImage ? (
+                      <div className="h-40 sm:h-48 overflow-hidden">
+                        <img
+                          src={blog.coverImage}
+                          alt={blog.coverImageAlt || blog.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                      </div>
+                    ) : (
+                      <div className="h-1 bg-gradient-to-r from-blue-500 to-violet-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    )}
 
                     <div className="p-5 sm:p-6 flex flex-col flex-1">
-                    
 
                       {/* Başlık */}
                       <h2 className="text-lg font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors line-clamp-2 break-words leading-snug">
