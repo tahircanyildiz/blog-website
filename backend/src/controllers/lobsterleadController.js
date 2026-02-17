@@ -7,9 +7,16 @@ const Blog = require('../models/Blog');
  */
 exports.publishBlog = async (req, res, next) => {
   try {
-    const { title, content, shortDescription, summary, description, tags, slug, publishDate } = req.body;
+    const {
+      title,
+      content,
+      metaDescription,
+      status,
+      seoKeywords,
+      coverImage,
+      coverImageAlt
+    } = req.body;
 
-    // Gerekli alanları kontrol et
     if (!title || !content) {
       return res.status(400).json({
         success: false,
@@ -17,25 +24,28 @@ exports.publishBlog = async (req, res, next) => {
       });
     }
 
-    // shortDescription için fallback: summary, description veya içerikten ilk 200 karakter
-    const finalShortDescription = shortDescription || summary || description ||
-      content.replace(/<[^>]*>/g, '').substring(0, 200);
+    // metaDescription'dan shortDescription oluştur
+    const shortDescription = metaDescription
+      ? metaDescription.substring(0, 500)
+      : content.replace(/<[^>]*>/g, '').substring(0, 500);
 
-    // Blog oluştur
-    const blogData = {
+    // seoKeywords string'ini tags array'ine dönüştür
+    const tags = seoKeywords
+      ? seoKeywords.split(',').map(k => k.trim()).filter(k => k.length > 0)
+      : [];
+
+    const blog = await Blog.create({
       title,
       content,
-      shortDescription: finalShortDescription.substring(0, 200),
-      publishDate: publishDate || Date.now(),
-      tags: tags || []
-    };
-
-    // Eğer slug gönderilmişse kullan
-    if (slug) {
-      blogData.slug = slug;
-    }
-
-    const blog = await Blog.create(blogData);
+      shortDescription,
+      metaDescription,
+      status: status === 'draft' ? 'draft' : 'published',
+      seoKeywords,
+      coverImage,
+      coverImageAlt,
+      tags,
+      publishDate: Date.now()
+    });
 
     res.status(201).json({
       success: true,
@@ -48,7 +58,6 @@ exports.publishBlog = async (req, res, next) => {
       }
     });
   } catch (error) {
-    // Unique slug hatası
     if (error.code === 11000) {
       return res.status(400).json({
         success: false,
@@ -67,7 +76,15 @@ exports.publishBlog = async (req, res, next) => {
 exports.updateBlog = async (req, res, next) => {
   try {
     const { slug } = req.params;
-    const { title, content, shortDescription, summary, description, tags, publishDate } = req.body;
+    const {
+      title,
+      content,
+      metaDescription,
+      status,
+      seoKeywords,
+      coverImage,
+      coverImageAlt
+    } = req.body;
 
     const blog = await Blog.findOne({ slug });
 
@@ -78,14 +95,19 @@ exports.updateBlog = async (req, res, next) => {
       });
     }
 
-    // Güncellenecek alanlar
     if (title) blog.title = title;
     if (content) blog.content = content;
-    if (shortDescription || summary || description) {
-      blog.shortDescription = (shortDescription || summary || description).substring(0, 200);
+    if (metaDescription) {
+      blog.metaDescription = metaDescription;
+      blog.shortDescription = metaDescription.substring(0, 500);
     }
-    if (tags) blog.tags = tags;
-    if (publishDate) blog.publishDate = publishDate;
+    if (status) blog.status = status;
+    if (seoKeywords) {
+      blog.seoKeywords = seoKeywords;
+      blog.tags = seoKeywords.split(',').map(k => k.trim()).filter(k => k.length > 0);
+    }
+    if (coverImage) blog.coverImage = coverImage;
+    if (coverImageAlt) blog.coverImageAlt = coverImageAlt;
 
     await blog.save();
 

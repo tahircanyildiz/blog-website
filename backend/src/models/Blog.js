@@ -15,8 +15,28 @@ const blogSchema = new mongoose.Schema({
   },
   shortDescription: {
     type: String,
-    required: [true, 'Kısa açıklama alanı zorunludur'],
-    maxlength: [200, 'Kısa açıklama en fazla 200 karakter olabilir']
+    maxlength: [500, 'Kısa açıklama en fazla 500 karakter olabilir']
+  },
+  metaDescription: {
+    type: String,
+    trim: true
+  },
+  status: {
+    type: String,
+    enum: ['draft', 'published'],
+    default: 'published'
+  },
+  seoKeywords: {
+    type: String,
+    trim: true
+  },
+  coverImage: {
+    type: String,
+    trim: true
+  },
+  coverImageAlt: {
+    type: String,
+    trim: true
   },
   publishDate: {
     type: Date,
