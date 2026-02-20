@@ -5,11 +5,9 @@ import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
 import GoogleAnalytics from './components/GoogleAnalytics';
-import Home from './pages/Home';
-import About from './pages/About';
+import LandingPage from './pages/LandingPage';
 import BlogList from './pages/BlogList';
 import BlogDetail from './pages/BlogDetail';
-import Contact from './pages/Contact';
 import Login from './pages/Login';
 import AdminLayout from './pages/admin/AdminLayout';
 import Dashboard from './pages/admin/Dashboard';
@@ -21,112 +19,56 @@ import SocialMediaSettings from './pages/admin/SocialMediaSettings';
 import ContactInfoSettings from './pages/admin/ContactInfoSettings';
 import { getAllBlogs, getBlogById, getAbout, getSettings } from './services/api';
 
+// Layout component - App dışında tanımlanmalı, aksi halde her render'da yeniden oluşturulur
+function Layout({ children }) {
+  return (
+    <div className="flex flex-col min-h-screen">
+      <Navbar />
+      <main className="flex-grow">{children}</main>
+      <Footer />
+    </div>
+  );
+}
+
 /**
  * Ana Uygulama Bileşeni
- * Routing yapısı ve layout'u içerir
  */
 function App() {
-  // Backend'i uyandırmak ve tüm critical data'yı prefetch etmek için
   useEffect(() => {
     const prefetchData = async () => {
       try {
         console.log('🚀 Prefetching data to wake up backend...');
-
-        // Paralel olarak tüm critical data'yı çek
         const [blogs] = await Promise.all([
-          getAllBlogs(),      // Blog listesi
-          getAbout(),         // Hakkımda bilgileri
-          getSettings()       // Site ayarları (sosyal medya, iletişim)
+          getAllBlogs(),
+          getAbout(),
+          getSettings()
         ]);
-
         console.log('✅ Backend awake and all data cached!');
-
-        // En son 3 bloğu da prefetch et (kullanıcılar genelde son yazıları okur)
         if (blogs && blogs.length > 0) {
           const topBlogs = blogs.slice(0, 3);
-          await Promise.all(
-            topBlogs.map(blog => getBlogById(blog.slug))
-          );
+          await Promise.all(topBlogs.map(blog => getBlogById(blog.slug)));
         }
       } catch (error) {
         console.log('⚠️ Prefetch failed (backend might be sleeping):', error.message);
       }
     };
-
-    // Sayfa yüklendiğinde hemen başlat
     prefetchData();
   }, []);
+
   return (
     <AuthProvider>
       <Router>
         <GoogleAnalytics />
         <Routes>
-          {/* Public Routes - Normal kullanıcı sayfaları */}
-          <Route
-            path="/"
-            element={
-              <div className="flex flex-col min-h-screen">
-                <Navbar />
-                <main className="flex-grow">
-                  <Home />
-                </main>
-                <Footer />
-              </div>
-            }
-          />
-          <Route
-            path="/about"
-            element={
-              <div className="flex flex-col min-h-screen">
-                <Navbar />
-                <main className="flex-grow">
-                  <About />
-                </main>
-                <Footer />
-              </div>
-            }
-          />
-          <Route
-            path="/blog"
-            element={
-              <div className="flex flex-col min-h-screen">
-                <Navbar />
-                <main className="flex-grow">
-                  <BlogList />
-                </main>
-                <Footer />
-              </div>
-            }
-          />
-          <Route
-            path="/blog/:slug"
-            element={
-              <div className="flex flex-col min-h-screen">
-                <Navbar />
-                <main className="flex-grow">
-                  <BlogDetail />
-                </main>
-                <Footer />
-              </div>
-            }
-          />
-          <Route
-            path="/contact"
-            element={
-              <div className="flex flex-col min-h-screen">
-                <Navbar />
-                <main className="flex-grow">
-                  <Contact />
-                </main>
-                <Footer />
-              </div>
-            }
-          />
+          {/* Public Routes */}
+          <Route path="/" element={<Layout><LandingPage /></Layout>} />
+          <Route path="/blog" element={<Layout><BlogList /></Layout>} />
+          <Route path="/blog/:slug" element={<Layout><BlogDetail /></Layout>} />
 
-          {/* Login Route - Custom path */}
+          {/* Login Route */}
           <Route path="/mrpurposeless/login" element={<Login />} />
 
-          {/* Admin Routes - Protected with custom path */}
+          {/* Admin Routes */}
           <Route
             path="/mrpurposeless"
             element={
@@ -145,7 +87,7 @@ function App() {
             <Route path="contact-info" element={<ContactInfoSettings />} />
           </Route>
 
-          {/* 404 - Sayfa Bulunamadı */}
+          {/* 404 */}
           <Route
             path="*"
             element={
@@ -153,10 +95,7 @@ function App() {
                 <div className="text-center">
                   <h1 className="text-6xl font-bold text-gray-900 mb-4">404</h1>
                   <p className="text-xl text-gray-600 mb-8">Sayfa bulunamadı</p>
-                  <a
-                    href="/"
-                    className="px-6 py-3 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition-colors inline-block"
-                  >
+                  <a href="/" className="px-6 py-3 bg-[#40916c] text-white rounded-lg font-semibold hover:bg-[#2d6a4f] transition-colors inline-block">
                     Anasayfaya Dön
                   </a>
                 </div>

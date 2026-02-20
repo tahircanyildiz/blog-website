@@ -1,5 +1,6 @@
 const Contact = require('../models/Contact');
 const { validationResult } = require('express-validator');
+const { sendContactNotification } = require('../services/mailService');
 
 /**
  * @desc    İletişim formu mesajı oluştur
@@ -25,6 +26,13 @@ exports.createContact = async (req, res, next) => {
       email,
       message
     });
+
+    // Mail bildirimini arka planda gönder — hata olsa bile kullanıcıya başarı dön
+    if (process.env.MAILERSEND_API_KEY) {
+      sendContactNotification({ name, email, message }).catch((err) => {
+        console.error('MailerSend hatası:', err?.message || err);
+      });
+    }
 
     res.status(201).json({
       success: true,

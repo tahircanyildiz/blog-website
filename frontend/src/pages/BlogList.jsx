@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { BookOpen, Calendar, Eye, FileText, ArrowRight } from 'lucide-react';
 import { getAllBlogs } from '../services/api';
+import { useScrollAnimation } from '../hooks/useScrollAnimation';
 import Loading from '../components/Loading';
 import ErrorMessage from '../components/ErrorMessage';
 
@@ -13,6 +14,11 @@ function BlogList() {
   const [blogs, setBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // Scroll animations
+  const headerAnimation = useScrollAnimation({ threshold: 0.2 });
+  const featuredAnimation = useScrollAnimation({ threshold: 0.1 });
+  const otherBlogsAnimation = useScrollAnimation({ threshold: 0.1 });
 
   useEffect(() => {
     fetchBlogs();
@@ -46,10 +52,10 @@ function BlogList() {
   const otherBlogs = blogs.length > 1 ? blogs.slice(1) : [];
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-blue-50 via-white to-violet-50 py-6 sm:py-12">
+    <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-[#d8f3dc] via-white to-[#b7e4c7] py-6 sm:py-12">
       {/* Dekoratif gradient şekiller */}
-      <div className="absolute top-40 right-20 w-48 h-48 sm:w-72 sm:h-72 bg-gradient-to-r from-violet-400 to-pink-400 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob"></div>
-      <div className="absolute bottom-40 left-20 w-48 h-48 sm:w-72 sm:h-72 bg-gradient-to-r from-blue-400 to-indigo-400 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob animation-delay-4000"></div>
+      <div className="absolute top-40 right-20 w-48 h-48 sm:w-72 sm:h-72 bg-gradient-to-r from-[#95d5b2] to-[#74c69d] rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob"></div>
+      <div className="absolute bottom-40 left-20 w-48 h-48 sm:w-72 sm:h-72 bg-gradient-to-r from-[#74c69d] to-[#40916c] rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob animation-delay-4000"></div>
 
       {/* Background Logo */}
       <div className="fixed inset-0 flex items-center justify-center pointer-events-none z-0">
@@ -62,13 +68,18 @@ function BlogList() {
 
       <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Başlık */}
-        <div className="mb-10 sm:mb-14 text-center">
+        <div
+          ref={headerAnimation.ref}
+          className={`mb-10 sm:mb-14 text-center ${
+            headerAnimation.isVisible ? 'animate-fadeInDown' : 'opacity-0'
+          }`}
+        >
           <div className="inline-flex items-center justify-center mb-5">
-            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-violet-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
+            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-[#40916c] to-[#2d6a4f] flex items-center justify-center shadow-lg shadow-[#40916c]/20">
               <BookOpen className="w-7 h-7 sm:w-8 sm:h-8 text-white" strokeWidth={2.5} />
             </div>
           </div>
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold bg-gradient-to-r from-gray-900 via-blue-800 to-violet-900 bg-clip-text text-transparent mb-3 break-words px-2">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold bg-gradient-to-r from-gray-900 via-[#1b4332] to-[#081c15] bg-clip-text text-transparent mb-3 break-words px-2">
             Blog Yazıları
           </h1>
           <p className="text-gray-500 text-base sm:text-lg max-w-xl mx-auto">
@@ -79,8 +90,8 @@ function BlogList() {
         {/* Blog Listesi */}
         {blogs.length === 0 ? (
           <div className="text-center py-12 sm:py-20">
-            <div className="w-24 h-24 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-blue-100 to-violet-100 flex items-center justify-center">
-              <FileText className="w-12 h-12 text-blue-400" strokeWidth={1.5} />
+            <div className="w-24 h-24 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-[#d8f3dc] to-[#b7e4c7] flex items-center justify-center">
+              <FileText className="w-12 h-12 text-[#40916c]" strokeWidth={1.5} />
             </div>
             <p className="text-lg sm:text-xl text-gray-500 mb-2">Henüz blog yazısı bulunmuyor</p>
             <p className="text-sm text-gray-400">Yakında yeni yazılar eklenecek</p>
@@ -89,109 +100,120 @@ function BlogList() {
           <div className="space-y-8 sm:space-y-12">
             {/* Öne Çıkan (ilk) Blog */}
             {featuredBlog && (
-              <Link
-                to={`/blog/${featuredBlog.slug}`}
-                className="block group"
+              <div
+                ref={featuredAnimation.ref}
+                className={featuredAnimation.isVisible ? 'animate-fadeInUp' : 'opacity-0'}
               >
-                <div className="bg-white rounded-3xl shadow-md hover:shadow-2xl transition-all duration-500 overflow-hidden border border-gray-100 hover:border-blue-200">
-                  <div className="md:flex">
-                    {/* Sol - cover image veya gradient banner */}
-                    <div className="md:w-2/5 relative overflow-hidden">
-                      {featuredBlog.coverImage ? (
-                        <div className="h-full min-h-[240px] md:min-h-full relative">
-                          <img
-                            src={featuredBlog.coverImage}
-                            alt={featuredBlog.coverImageAlt || featuredBlog.title}
-                            className="absolute inset-0 w-full h-full object-cover"
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                          <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-8 md:p-10 z-10">
-                            <span className="inline-block px-3 py-1 bg-white/20 backdrop-blur-sm text-white text-xs font-bold rounded-full mb-3 tracking-wider uppercase">
-                              Son Yazı
-                            </span>
-                            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-white leading-tight break-words">
-                              {featuredBlog.title}
-                            </h2>
-                            <div className="flex items-center gap-4 mt-3 text-white/80 text-sm">
-                              <span className="flex items-center gap-1">
-                                <Calendar className="w-4 h-4" />
-                                {formatDate(featuredBlog.publishDate)}
+                <Link
+                  to={`/blog/${featuredBlog.slug}`}
+                  className="block group"
+                >
+                  <div className="bg-white rounded-3xl shadow-md hover:shadow-2xl transition-all duration-500 overflow-hidden border border-gray-100 hover:border-[#95d5b2]">
+                    <div className="md:flex">
+                      {/* Sol - cover image veya gradient banner */}
+                      <div className="md:w-2/5 relative overflow-hidden">
+                        {featuredBlog.coverImage ? (
+                          <div className="h-full min-h-[240px] md:min-h-full relative">
+                            <img
+                              src={featuredBlog.coverImage}
+                              alt={featuredBlog.coverImageAlt || featuredBlog.title}
+                              className="absolute inset-0 w-full h-full object-cover"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                            <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-8 md:p-10 z-10">
+                              <span className="inline-block px-3 py-1 bg-white/20 backdrop-blur-sm text-white text-xs font-bold rounded-full mb-3 tracking-wider uppercase">
+                                Son Yazı
                               </span>
-                              <span className="flex items-center gap-1">
-                                <Eye className="w-4 h-4" />
-                                {featuredBlog.viewCount || 0} görüntülenme
-                              </span>
+                              <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-white leading-tight break-words">
+                                {featuredBlog.title}
+                              </h2>
+                              <div className="flex items-center gap-4 mt-3 text-white/80 text-sm">
+                                <span className="flex items-center gap-1">
+                                  <Calendar className="w-4 h-4" />
+                                  {formatDate(featuredBlog.publishDate)}
+                                </span>
+                                <span className="flex items-center gap-1">
+                                  <Eye className="w-4 h-4" />
+                                  {featuredBlog.viewCount || 0} görüntülenme
+                                </span>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      ) : (
-                        <div className="h-full bg-gradient-to-br from-blue-600 via-violet-600 to-purple-600 p-6 sm:p-8 md:p-10 flex flex-col justify-center">
-                          <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
-                          <div className="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2"></div>
-                          <div className="relative z-10">
-                            <span className="inline-block px-3 py-1 bg-white/20 backdrop-blur-sm text-white text-xs font-bold rounded-full mb-4 tracking-wider uppercase">
-                              Son Yazı
-                            </span>
-                            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-white leading-tight break-words">
-                              {featuredBlog.title}
-                            </h2>
-                            <div className="flex items-center gap-4 mt-4 text-blue-100 text-sm">
-                              <span className="flex items-center gap-1">
-                                <Calendar className="w-4 h-4" />
-                                {formatDate(featuredBlog.publishDate)}
+                        ) : (
+                          <div className="h-full bg-gradient-to-br from-[#40916c] via-[#2d6a4f] to-[#1b4332] p-6 sm:p-8 md:p-10 flex flex-col justify-center">
+                            <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+                            <div className="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2"></div>
+                            <div className="relative z-10">
+                              <span className="inline-block px-3 py-1 bg-white/20 backdrop-blur-sm text-white text-xs font-bold rounded-full mb-4 tracking-wider uppercase">
+                                Son Yazı
                               </span>
-                              <span className="flex items-center gap-1">
-                                <Eye className="w-4 h-4" />
-                                {featuredBlog.viewCount || 0} görüntülenme
-                              </span>
+                              <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-white leading-tight break-words">
+                                {featuredBlog.title}
+                              </h2>
+                              <div className="flex items-center gap-4 mt-4 text-[#d8f3dc] text-sm">
+                                <span className="flex items-center gap-1">
+                                  <Calendar className="w-4 h-4" />
+                                  {formatDate(featuredBlog.publishDate)}
+                                </span>
+                                <span className="flex items-center gap-1">
+                                  <Eye className="w-4 h-4" />
+                                  {featuredBlog.viewCount || 0} görüntülenme
+                                </span>
+                              </div>
                             </div>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Sağ - içerik */}
-                    <div className="md:w-3/5 p-6 sm:p-8 md:p-10 flex flex-col justify-between">
-                      <div>
-                        <p className="text-gray-600 text-base sm:text-lg leading-relaxed mb-5 line-clamp-4 break-words">
-                          {featuredBlog.shortDescription}
-                        </p>
-
-                        {featuredBlog.tags && featuredBlog.tags.length > 0 && (
-                          <div className="flex flex-wrap gap-2 mb-5">
-                            {featuredBlog.tags.slice(0, 4).map((tag, index) => (
-                              <span
-                                key={index}
-                                className="px-3 py-1 bg-blue-50 text-blue-600 text-xs font-semibold rounded-lg break-words"
-                              >
-                                {tag}
-                              </span>
-                            ))}
                           </div>
                         )}
                       </div>
 
-                      <div className="flex items-center justify-end pt-4 border-t border-gray-100">
-                        <span className="flex items-center gap-1 text-sm font-semibold text-blue-600 group-hover:text-violet-600 transition-colors">
-                          Devamını Oku
-                          <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" />
-                        </span>
+                      {/* Sağ - içerik */}
+                      <div className="md:w-3/5 p-6 sm:p-8 md:p-10 flex flex-col justify-between">
+                        <div>
+                          <p className="text-gray-600 text-base sm:text-lg leading-relaxed mb-5 line-clamp-4 break-words">
+                            {featuredBlog.shortDescription}
+                          </p>
+
+                          {featuredBlog.tags && featuredBlog.tags.length > 0 && (
+                            <div className="flex flex-wrap gap-2 mb-5">
+                              {featuredBlog.tags.slice(0, 4).map((tag, index) => (
+                                <span
+                                  key={index}
+                                  className="px-3 py-1 bg-[#d8f3dc] text-[#2d6a4f] text-xs font-semibold rounded-lg break-words"
+                                >
+                                  {tag}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="flex items-center justify-end pt-4 border-t border-gray-100">
+                          <span className="flex items-center gap-1 text-sm font-semibold text-[#40916c] group-hover:text-[#2d6a4f] transition-colors">
+                            Devamını Oku
+                            <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" />
+                          </span>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              </Link>
+                </Link>
+              </div>
             )}
 
             {/* Diğer Bloglar */}
             {otherBlogs.length > 0 && (
-              <div className="grid gap-5 sm:gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {otherBlogs.map((blog) => (
+              <div
+                ref={otherBlogsAnimation.ref}
+                className={`grid gap-5 sm:gap-6 md:grid-cols-2 lg:grid-cols-3 ${
+                  otherBlogsAnimation.isVisible ? 'animate-fadeInUp' : 'opacity-0'
+                }`}
+              >
+                {otherBlogs.map((blog, index) => (
                   <Link
                     key={blog._id}
                     to={`/blog/${blog.slug}`}
                     className="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300
-                             transform hover:-translate-y-1 overflow-hidden group border border-gray-100 hover:border-blue-200 flex flex-col"
+                             transform hover:-translate-y-1 overflow-hidden group border border-gray-100 hover:border-[#95d5b2] flex flex-col"
+                    style={{ animationDelay: `${index * 0.08}s` }}
                   >
                     {/* Cover Image veya gradient çizgi */}
                     {blog.coverImage ? (
@@ -203,13 +225,12 @@ function BlogList() {
                         />
                       </div>
                     ) : (
-                      <div className="h-1 bg-gradient-to-r from-blue-500 to-violet-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                      <div className="h-1 bg-gradient-to-r from-[#40916c] to-[#2d6a4f] opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                     )}
 
                     <div className="p-5 sm:p-6 flex flex-col flex-1">
-
                       {/* Başlık */}
-                      <h2 className="text-lg font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors line-clamp-2 break-words leading-snug">
+                      <h2 className="text-lg font-bold text-gray-900 mb-2 group-hover:text-[#40916c] transition-colors line-clamp-2 break-words leading-snug">
                         {blog.title}
                       </h2>
 
