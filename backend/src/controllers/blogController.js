@@ -9,7 +9,7 @@ const { validationResult } = require('express-validator');
  */
 exports.getAllBlogs = async (req, res, next) => {
   try {
-    const blogs = await Blog.find()
+    const blogs = await Blog.find({ status: 'published' })
       .select('title shortDescription metaDescription publishDate slug tags viewCount coverImage coverImageAlt status')
       .sort({ publishDate: -1 }); // En yeni yazılar önce
 

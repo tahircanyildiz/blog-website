@@ -22,7 +22,6 @@ function BlogDetail() {
 
   // Scroll animations
   const heroAnimation = useScrollAnimation({ threshold: 0.1 });
-  const contentAnimation = useScrollAnimation({ threshold: 0.1 });
   const sidebarAnimation = useScrollAnimation({ threshold: 0.1 });
 
   useEffect(() => {
@@ -170,10 +169,7 @@ function BlogDetail() {
           {/* Ana İçerik */}
           <article className="min-w-0">
             <div
-              ref={contentAnimation.ref}
-              className={`bg-white rounded-2xl shadow-sm border border-gray-100 p-5 sm:p-8 md:p-10 ${
-                contentAnimation.isVisible ? 'animate-fadeInUp' : 'opacity-0'
-              }`}
+              className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 sm:p-8 md:p-10"
             >
               {/* Ana İçerik - HTML Content */}
               <div
