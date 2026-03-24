@@ -109,6 +109,7 @@ exports.login = async (req, res, next) => {
     res.status(200).json({
       success: true,
       message: 'Giriş başarılı',
+      token,
       data: {
         user: {
           id: user._id,
