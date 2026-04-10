@@ -161,6 +161,7 @@ exports.uploadImage = [
 
       res.status(200).json({
         success: true,
+        imageUrl: req.file.path,
         url: req.file.path,
         alt: req.file.originalname
       });
