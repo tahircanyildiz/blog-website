@@ -7,8 +7,10 @@ const {
   getBlogById,
   createBlog,
   updateBlog,
-  deleteBlog
+  deleteBlog,
+  uploadImage
 } = require('../controllers/blogController');
+const { uploadBlogImage } = require('../config/cloudinary');
 
 /**
  * @route   GET /api/blogs
@@ -61,5 +63,12 @@ router.put('/:id', protect, admin, [
  * @access  Private/Admin
  */
 router.delete('/:id', protect, admin, deleteBlog);
+
+/**
+ * @route   POST /api/blogs/upload-image
+ * @desc    Blog içi görsel yükle (Admin)
+ * @access  Private/Admin
+ */
+router.post('/upload-image', protect, admin, uploadBlogImage.single('image'), uploadImage);
 
 module.exports = router;

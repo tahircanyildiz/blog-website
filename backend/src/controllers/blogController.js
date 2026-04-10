@@ -10,7 +10,7 @@ const { validationResult } = require('express-validator');
 exports.getAllBlogs = async (req, res, next) => {
   try {
     const blogs = await Blog.find({ status: 'published' })
-      .select('title shortDescription metaDescription publishDate slug tags viewCount coverImage coverImageAlt status')
+      .select('title shortDescription metaDescription content publishDate slug tags viewCount coverImage coverImageAlt status')
       .sort({ publishDate: -1 }); // En yeni yazılar önce
 
     res.status(200).json({
@@ -193,6 +193,29 @@ exports.deleteBlog = async (req, res, next) => {
         message: 'Blog yazısı bulunamadı'
       });
     }
+    next(error);
+  }
+};
+
+/**
+ * @desc    Blog içi görsel yükle (Cloudinary)
+ * @route   POST /api/blogs/upload-image
+ * @access  Private/Admin
+ */
+exports.uploadImage = async (req, res, next) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: 'Lütfen bir görsel dosyası seçin'
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      url: req.file.path
+    });
+  } catch (error) {
     next(error);
   }
 };
