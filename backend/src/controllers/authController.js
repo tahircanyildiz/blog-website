@@ -81,10 +81,13 @@ exports.login = async (req, res, next) => {
   }
 
   try {
-    const { email, password } = req.body;
+    const { email, username, password } = req.body;
+    const identifier = email || username;
 
-    // Kullanıcıyı bul (şifre ile birlikte)
-    const user = await User.findOne({ email }).select('+password');
+    // Kullanıcıyı bul (e-posta veya kullanıcı adı ile)
+    const user = await User.findOne({
+      $or: [{ email: identifier }, { username: identifier }]
+    }).select('+password');
 
     if (!user) {
       return res.status(401).json({
