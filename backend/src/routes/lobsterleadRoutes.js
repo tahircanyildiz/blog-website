@@ -4,7 +4,8 @@ const lobsterleadAuth = require('../middleware/lobsterleadAuth');
 const {
   publishBlog,
   updateBlog,
-  deleteBlog
+  deleteBlog,
+  uploadImage
 } = require('../controllers/lobsterleadController');
 
 /**
@@ -44,5 +45,12 @@ router.put('/publish/:slug', lobsterleadAuth, updateBlog);
  * @access  Private (API Key)
  */
 router.delete('/publish/:slug', lobsterleadAuth, deleteBlog);
+
+/**
+ * @route   POST /api/lobsterlead/upload-image
+ * @desc    Blog görseli yükle
+ * @access  Private (API Key)
+ */
+router.post('/upload-image', lobsterleadAuth, uploadImage);
 
 module.exports = router;

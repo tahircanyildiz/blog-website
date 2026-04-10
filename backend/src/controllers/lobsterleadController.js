@@ -1,4 +1,5 @@
 const Blog = require('../models/Blog');
+const { uploadBlogImage } = require('../config/cloudinary');
 
 /**
  * @desc    LobsterLead'den gelen blog içeriğini yayınla
@@ -141,6 +142,33 @@ exports.updateBlog = async (req, res, next) => {
     next(error);
   }
 };
+
+/**
+ * @desc    Blog görseli yükle (Cloudinary)
+ * @route   POST /api/lobsterlead/upload-image
+ * @access  Private (API Key)
+ */
+exports.uploadImage = [
+  uploadBlogImage.single('image'),
+  async (req, res, next) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({
+          success: false,
+          message: 'Lütfen bir görsel dosyası seçin'
+        });
+      }
+
+      res.status(200).json({
+        success: true,
+        url: req.file.path,
+        alt: req.file.originalname
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+];
 
 /**
  * @desc    LobsterLead'den gelen blog içeriğini sil

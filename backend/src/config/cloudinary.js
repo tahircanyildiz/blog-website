@@ -79,8 +79,35 @@ const uploadProfileImage = multer({
   }
 });
 
+// Blog görseli için Cloudinary storage
+const blogImageStorage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'blog-images',
+    allowed_formats: ['jpg', 'jpeg', 'png', 'webp', 'gif'],
+    transformation: [{ width: 1200, crop: 'limit' }],
+    public_id: (req, file) => {
+      const timestamp = Date.now();
+      return `blog-${timestamp}`;
+    }
+  }
+});
+
+const uploadBlogImage = multer({
+  storage: blogImageStorage,
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Sadece resim dosyaları yüklenebilir'), false);
+    }
+  }
+});
+
 module.exports = {
   cloudinary,
   uploadCV,
-  uploadProfileImage
+  uploadProfileImage,
+  uploadBlogImage
 };
