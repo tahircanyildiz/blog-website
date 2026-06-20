@@ -52,6 +52,17 @@ const blogSchema = new mongoose.Schema({
     type: String,
     trim: true
   }],
+  locale: {
+    type: String,
+    default: 'tr',
+    trim: true
+  },
+  correlationId: {
+    type: String,
+    trim: true,
+    sparse: true,
+    unique: true
+  },
   viewCount: {
     type: Number,
     default: 0

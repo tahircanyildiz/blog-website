@@ -1,8 +1,43 @@
 const Blog = require('../models/Blog');
 const { uploadBlogImage } = require('../config/cloudinary');
 
+function resolveCoverImage(coverImage, coverImageAlt) {
+  if (coverImage && typeof coverImage === 'object') {
+    return { url: coverImage.url || '', alt: coverImage.alt || '' };
+  }
+  return { url: coverImage || '', alt: coverImageAlt || '' };
+}
+
+function resolveTags(tags, seoKeywords) {
+  if (Array.isArray(tags)) return tags;
+  if (seoKeywords) return seoKeywords.split(',').map(k => k.trim()).filter(k => k.length > 0);
+  return [];
+}
+
+function resolveStatus(publish, status) {
+  if (publish !== undefined) return publish ? 'published' : 'draft';
+  return status === 'draft' ? 'draft' : 'published';
+}
+
+function buildPostResponse(blog, siteUrl) {
+  return {
+    id: blog._id,
+    title: blog.title,
+    slug: blog.slug,
+    status: blog.status,
+    locale: blog.locale,
+    metaDescription: blog.metaDescription,
+    coverImage: blog.coverImage,
+    coverImageAlt: blog.coverImageAlt,
+    tags: blog.tags,
+    correlationId: blog.correlationId,
+    publishDate: blog.publishDate,
+    url: siteUrl ? `${siteUrl}/blog/${blog.slug}` : undefined
+  };
+}
+
 /**
- * @desc    LobsterLead'den gelen blog içeriğini yayınla
+ * @desc    LobsterLead'den gelen blog içeriğini yayınla (idempotent)
  * @route   POST /api/lobsterlead/publish
  * @access  Private (API Key)
  */
@@ -10,67 +45,83 @@ exports.publishBlog = async (req, res, next) => {
   try {
     const {
       title,
-      content,
+      bodyHtml, content,
       metaDescription,
-      status,
-      seoKeywords,
-      coverImage,
-      coverImageAlt
+      status, publish,
+      seoKeywords, tags,
+      coverImage, coverImageAlt,
+      correlationId,
+      locale
     } = req.body;
 
-    if (!title || !content) {
+    const bodyContent = bodyHtml || content;
+
+    if (!title || !bodyContent) {
       return res.status(400).json({
         success: false,
-        message: 'title ve content alanları zorunludur'
+        message: 'title ve bodyHtml (veya content) alanları zorunludur'
       });
     }
 
-    // metaDescription'dan shortDescription oluştur
+    const resolvedCover = resolveCoverImage(coverImage, coverImageAlt);
+    const resolvedTags = resolveTags(tags, seoKeywords);
+    const resolvedStatus = resolveStatus(publish, status);
+    const resolvedLocale = locale || 'tr';
     const shortDescription = metaDescription
       ? metaDescription.substring(0, 500)
-      : content.replace(/<[^>]*>/g, '').substring(0, 500);
+      : bodyContent.replace(/<[^>]*>/g, '').substring(0, 500);
+    const siteUrl = process.env.SITE_URL || '';
 
-    // seoKeywords string'ini tags array'ine dönüştür
-    const tags = seoKeywords
-      ? seoKeywords.split(',').map(k => k.trim()).filter(k => k.length > 0)
-      : [];
+    // Idempotency: correlationId varsa güncelle
+    if (correlationId) {
+      const existing = await Blog.findOne({ correlationId });
+      if (existing) {
+        existing.title = title;
+        existing.content = bodyContent;
+        existing.shortDescription = shortDescription;
+        existing.metaDescription = metaDescription || existing.metaDescription;
+        existing.status = resolvedStatus;
+        existing.coverImage = resolvedCover.url;
+        existing.coverImageAlt = resolvedCover.alt;
+        existing.tags = resolvedTags;
+        existing.seoKeywords = Array.isArray(tags) ? tags.join(', ') : (seoKeywords || '');
+        existing.locale = resolvedLocale;
+
+        await existing.save();
+
+        return res.status(200).json({
+          post: buildPostResponse(existing, siteUrl),
+          idempotent: true,
+          operation: 'updated'
+        });
+      }
+    }
 
     const blog = await Blog.create({
       title,
-      content,
+      content: bodyContent,
       shortDescription,
       metaDescription,
-      status: status === 'draft' ? 'draft' : 'published',
-      seoKeywords,
-      coverImage,
-      coverImageAlt,
-      tags,
+      status: resolvedStatus,
+      coverImage: resolvedCover.url,
+      coverImageAlt: resolvedCover.alt,
+      tags: resolvedTags,
+      seoKeywords: Array.isArray(tags) ? tags.join(', ') : (seoKeywords || ''),
+      correlationId: correlationId || undefined,
+      locale: resolvedLocale,
       publishDate: Date.now()
     });
 
     res.status(201).json({
-      success: true,
-      message: 'Blog başarıyla yayınlandı',
-      data: {
-        id: blog._id,
-        title: blog.title,
-        content: blog.content,
-        shortDescription: blog.shortDescription,
-        metaDescription: blog.metaDescription,
-        status: blog.status,
-        seoKeywords: blog.seoKeywords,
-        coverImage: blog.coverImage,
-        coverImageAlt: blog.coverImageAlt,
-        slug: blog.slug,
-        tags: blog.tags,
-        publishDate: blog.publishDate
-      }
+      post: buildPostResponse(blog, siteUrl),
+      idempotent: false,
+      operation: 'created'
     });
   } catch (error) {
     if (error.code === 11000) {
       return res.status(400).json({
         success: false,
-        message: 'Bu slug/başlık ile bir blog yazısı zaten mevcut'
+        message: 'Bu slug/başlık veya correlationId ile bir blog yazısı zaten mevcut'
       });
     }
     next(error);
@@ -87,12 +138,12 @@ exports.updateBlog = async (req, res, next) => {
     const { slug } = req.params;
     const {
       title,
-      content,
+      bodyHtml, content,
       metaDescription,
-      status,
-      seoKeywords,
-      coverImage,
-      coverImageAlt
+      status, publish,
+      seoKeywords, tags,
+      coverImage, coverImageAlt,
+      locale
     } = req.body;
 
     const blog = await Blog.findOne({ slug });
@@ -104,39 +155,36 @@ exports.updateBlog = async (req, res, next) => {
       });
     }
 
+    const bodyContent = bodyHtml || content;
+
     if (title) blog.title = title;
-    if (content) blog.content = content;
+    if (bodyContent) blog.content = bodyContent;
     if (metaDescription) {
       blog.metaDescription = metaDescription;
       blog.shortDescription = metaDescription.substring(0, 500);
     }
-    if (status) blog.status = status;
-    if (seoKeywords) {
-      blog.seoKeywords = seoKeywords;
-      blog.tags = seoKeywords.split(',').map(k => k.trim()).filter(k => k.length > 0);
+    if (publish !== undefined || status) {
+      blog.status = resolveStatus(publish, status);
     }
-    if (coverImage) blog.coverImage = coverImage;
-    if (coverImageAlt) blog.coverImageAlt = coverImageAlt;
+    if (tags !== undefined || seoKeywords !== undefined) {
+      const resolvedTags = resolveTags(tags, seoKeywords);
+      blog.tags = resolvedTags;
+      blog.seoKeywords = Array.isArray(tags) ? tags.join(', ') : (seoKeywords || '');
+    }
+    if (coverImage !== undefined || coverImageAlt !== undefined) {
+      const resolvedCover = resolveCoverImage(coverImage, coverImageAlt);
+      blog.coverImage = resolvedCover.url;
+      blog.coverImageAlt = resolvedCover.alt;
+    }
+    if (locale) blog.locale = locale;
 
     await blog.save();
 
+    const siteUrl = process.env.SITE_URL || '';
     res.status(200).json({
-      success: true,
-      message: 'Blog başarıyla güncellendi',
-      data: {
-        id: blog._id,
-        title: blog.title,
-        content: blog.content,
-        shortDescription: blog.shortDescription,
-        metaDescription: blog.metaDescription,
-        status: blog.status,
-        seoKeywords: blog.seoKeywords,
-        coverImage: blog.coverImage,
-        coverImageAlt: blog.coverImageAlt,
-        slug: blog.slug,
-        tags: blog.tags,
-        publishDate: blog.publishDate
-      }
+      post: buildPostResponse(blog, siteUrl),
+      idempotent: false,
+      operation: 'updated'
     });
   } catch (error) {
     next(error);
