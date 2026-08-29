@@ -317,10 +317,6 @@ body{
     } else {
       alertMsg("");
     }
-
-    try{
-      history.replaceState(null, "", "#u=" + encodeURIComponent(raw));
-    }catch(err){}
   }
 
   function toggleDock(open){
