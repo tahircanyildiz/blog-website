@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Web Chat — Test Paneli</title>
+<style>
+:root{
+  --bg:#F4F6FA;
+  --panel:#FFFFFF;
+  --ink:#111827;
+  --muted:#6B7280;
+  --faint:#9CA3AF;
+  --line:#E5E7EB;
+  --brand:#4A90E8;
+  --brand-dark:#2F72C8;
+  --ok:#15803D;
+  --warn:#B45309;
+  --warn-bg:#FEF6E7;
+  --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden}
+body{
+  font-family:var(--font);
+  background:var(--bg);
+  color:var(--ink);
+  font-size:14px;line-height:1.5;
+  display:flex;
+}
+
+/* ================= sol panel ================= */
+.side{
+  width:296px;flex:none;
+  background:var(--panel);
+  border-right:1px solid var(--line);
+  display:flex;flex-direction:column;
+  height:100%;
+}
+.side-head{
+  padding:20px 22px 16px;
+  border-bottom:1px solid var(--line);
+}
+.side-head h1{font-size:15px;font-weight:700;letter-spacing:-.01em;margin:0}
+.side-head p{font-size:12.5px;color:var(--muted);margin:4px 0 0}
+
+.side-body{padding:20px 22px;overflow-y:auto;flex:1}
+
+.side-foot{
+  padding:13px 22px;
+  border-top:1px solid var(--line);
+  font-size:11.5px;color:var(--faint);
+}
+
+.field > label{
+  display:block;
+  font-size:11px;font-weight:600;letter-spacing:.05em;
+  text-transform:uppercase;color:var(--muted);
+  margin-bottom:7px;
+}
+.field textarea{
+  font:inherit;font-size:13px;width:100%;
+  padding:10px 11px;
+  border:1px solid var(--line);border-radius:9px;
+  background:#fff;color:var(--ink);
+  resize:vertical;min-height:96px;line-height:1.5;
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+.field textarea:focus{
+  outline:none;border-color:var(--brand);
+  box-shadow:0 0 0 3px rgba(74,144,232,.15);
+}
+
+.btn{
+  font:inherit;font-size:13.5px;font-weight:600;
+  width:100%;padding:11px 0;
+  border:1px solid transparent;border-radius:9px;
+  background:var(--brand);color:#fff;cursor:pointer;
+  margin-top:12px;
+}
+.btn:hover{background:var(--brand-dark)}
+.btn-sec{background:#F1F4F8;color:var(--ink);border-color:var(--line);margin-top:8px}
+.btn-sec:hover{background:#E6EBF2}
+
+.status{margin-top:22px;padding-top:18px;border-top:1px solid var(--line)}
+.status-row{
+  display:flex;align-items:flex-start;gap:9px;
+  font-size:12.5px;color:var(--muted);margin-bottom:9px;
+  word-break:break-word;
+}
+.status-row:last-child{margin-bottom:0}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--faint);flex:none;margin-top:6px}
+.dot.ok{background:var(--ok)}
+.dot.warn{background:var(--warn)}
+.dot.busy{background:var(--brand);animation:blink 1.2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+
+.alert{
+  display:none;
+  background:var(--warn-bg);border:1px solid #F5D9A8;
+  color:var(--warn);font-size:12.5px;line-height:1.55;
+  border-radius:9px;padding:10px 12px;margin-bottom:18px;
+}
+.alert.on{display:block}
+
+/* ================= sağ sahne ================= */
+.stage{
+  flex:1;min-width:0;
+  display:flex;flex-direction:column;
+  height:100%;padding:20px 24px 24px;
+}
+.stage-head{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex:none}
+.stage-head h2{font-size:17px;font-weight:700;margin:0;letter-spacing:-.01em;flex:none}
+.stage-head code{
+  font-size:11.5px;color:var(--faint);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+.stage-body{
+  flex:1;min-height:0;
+  display:flex;justify-content:center;
+  padding-right:296px;   /* sol panel genişliği kadar dengele, kart ekranın tam ortasına gelsin */
+}
+.frame-card{
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:14px;
+  box-shadow:0 1px 2px rgba(16,24,40,.05),0 10px 28px rgba(16,24,40,.07);
+  overflow:hidden;height:100%;width:420px;max-width:100%;
+}
+.frame-card iframe{display:block;border:0;width:100%;height:100%}
+.frame-card .empty{
+  display:flex;align-items:center;justify-content:center;
+  height:100%;padding:30px;text-align:center;
+  color:var(--faint);font-size:13.5px;
+}
+
+/* ================= köşe balonu ================= */
+.launcher{
+  position:fixed;right:26px;bottom:26px;z-index:40;
+  width:56px;height:56px;border-radius:50%;border:0;cursor:pointer;
+  background:var(--brand);color:#fff;
+  box-shadow:0 6px 20px rgba(74,144,232,.45);
+  display:flex;align-items:center;justify-content:center;
+}
+.launcher:hover{background:var(--brand-dark)}
+.launcher svg{width:24px;height:24px;fill:currentColor}
+
+.teaser{
+  position:fixed;right:94px;bottom:32px;z-index:39;max-width:280px;
+  background:#fff;border:1px solid var(--line);border-radius:12px;
+  box-shadow:0 6px 22px rgba(16,24,40,.14);
+  padding:11px 14px;text-align:left;cursor:pointer;
+  animation:rise .3s ease both;
+}
+.teaser strong{display:block;font-size:13.5px;margin-bottom:1px}
+.teaser span{display:block;font-size:12.5px;color:var(--muted)}
+.teaser.hidden{display:none}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+.dock{
+  position:fixed;right:26px;bottom:94px;z-index:40;
+  width:376px;height:min(620px,calc(100vh - 132px));
+  background:#fff;border-radius:14px;overflow:hidden;
+  box-shadow:0 14px 44px rgba(16,24,40,.24);
+  display:none;animation:rise .2s ease both;
+}
+.dock.on{display:block}
+.dock iframe{display:block;border:0;width:100%;height:100%}
+
+@media (max-width:1200px){
+  .stage-body{padding-right:0}
+}
+@media (max-width:860px){
+  html,body{overflow:auto}
+  body{flex-direction:column}
+  .side{width:100%;height:auto;border-right:0;border-bottom:1px solid var(--line)}
+  .side-body{overflow:visible}
+  .stage{height:auto;padding:18px}
+  .frame-card{height:70vh}
+  .teaser{display:none}
+  .dock{right:12px;left:12px;width:auto}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<aside class="side">
+  <div class="side-head">
+    <h1>Web Chat Test Paneli</h1>
+    <p>Linki gir, chat sağda ve köşede açılsın.</p>
+  </div>
+
+  <div class="side-body">
+    <div class="alert" id="alert"></div>
+
+    <div class="field">
+      <label for="f-url">Chat linki</label>
+      <textarea id="f-url" spellcheck="false" placeholder="Adresi veya iframe kodunu yapıştır"></textarea>
+    </div>
+
+    <button class="btn" id="btn-load">Aç</button>
+    <button class="btn btn-sec" id="btn-tab">Yeni sekmede aç</button>
+  </div>
+</aside>
+
+<main class="stage">
+  <div class="stage-head">
+    <h2>Test Paneli</h2>
+    <code id="h-src"></code>
+  </div>
+  <div class="stage-body">
+    <div class="frame-card" id="card">
+      <div class="empty">Soldaki alana chat linkini yapıştır ve <b>Aç</b>'a bas.</div>
+    </div>
+  </div>
+</main>
+
+<div class="teaser hidden" id="teaser">
+  <strong>Asistan</strong>
+  <span>Merhaba, size nasıl yardımcı olabilirim?</span>
+</div>
+
+<button class="launcher" id="launcher" aria-label="Sohbeti aç" aria-expanded="false">
+  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 2H4a2 2 0 0 0-2 2v18l4-4h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2z"/></svg>
+</button>
+
+<div class="dock" id="dock"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  var DEFAULT = "http://195.201.107.183:3002/web-chat/embed/f2aa9747-6d95-46da-9ec2-52e6bf99558a?lang=tr";
+
+  var elUrl = document.getElementById("f-url");
+  var card = document.getElementById("card");
+  var dock = document.getElementById("dock");
+  var teaser = document.getElementById("teaser");
+  var alertBox = document.getElementById("alert");
+  var launcher = document.getElementById("launcher");
+
+  var current = "", msgCount = 0, t0 = 0, timer = null;
+
+  function say(){ /* durum çubuğu kaldırıldı */ }
+  function dot(){ /* durum noktaları kaldırıldı */ }
+  function setText(){ /* durum metinleri kaldırıldı */ }
+
+  function alertMsg(t){
+    if(!t){ alertBox.className = "alert"; alertBox.textContent = ""; return; }
+    alertBox.className = "alert on";
+    alertBox.textContent = t;
+  }
+
+  function dot(id, cls){ document.getElementById(id).className = "dot" + (cls ? " " + cls : ""); }
+
+  function extract(raw){
+    var t = (raw || "").trim();
+    if(!t) return "";
+    var m = t.match(/src\s*=\s*["']([^"']+)["']/i);
+    if(m) return m[1];
+    if(/^https?:\/\//i.test(t)) return t;
+    return "";
+  }
+
+  /* tema her zaman açık */
+  function forceLight(src){
+    try{
+      var u = new URL(src);
+      u.searchParams.set("theme","light");
+      return u.toString();
+    }catch(err){
+      if(/[?&]theme=/.test(src)) return src.replace(/([?&]theme=)[^&]*/,"$1light");
+      return src + (src.indexOf("?") === -1 ? "?" : "&") + "theme=light";
+    }
+  }
+
+  function makeFrame(src, title){
+    var f = document.createElement("iframe");
+    f.src = src; f.title = title;
+    f.setAttribute("allow","microphone; clipboard-write");
+    return f;
+  }
+
+  function render(){
+    var raw = extract(elUrl.value);
+    if(!raw){
+      alertMsg("Geçerli bir adres bulunamadı. Tam URL'yi veya iframe kodunun tamamını yapıştır.");
+      return;
+    }
+
+    current = forceLight(raw);
+    document.getElementById("h-src").textContent = current;
+
+    clearTimeout(timer);
+    t0 = performance.now();
+
+    var f = makeFrame(current, "Gömülü chat");
+    f.addEventListener("load", function(){
+      clearTimeout(timer);
+    });
+
+    card.textContent = "";
+    card.appendChild(f);
+
+    dock.textContent = "";
+    dock.appendChild(makeFrame(current, "Köşe chat"));
+    teaser.classList.remove("hidden");
+
+    timer = setTimeout(function(){
+      alertMsg("Çerçeve 8 saniyede yüklenmedi. Sunucuya erişimi ve tarayıcı konsolunu kontrol et.");
+    }, 8000);
+
+    if(location.protocol === "https:" && /^http:/i.test(current)){
+      alertMsg("Sayfa https, chat adresi http. Tarayıcı çerçeveyi bloklar. Dosyayı bilgisayarında açarak test et.");
+    } else {
+      alertMsg("");
+    }
+
+    try{
+      history.replaceState(null, "", "#u=" + encodeURIComponent(raw));
+    }catch(err){}
+  }
+
+  function toggleDock(open){
+    var on = (open === undefined) ? !dock.classList.contains("on") : open;
+    dock.classList.toggle("on", on);
+    launcher.setAttribute("aria-expanded", String(on));
+    if(on) teaser.classList.add("hidden");
+  }
+
+  document.getElementById("btn-load").addEventListener("click", render);
+  elUrl.addEventListener("keydown", function(e){
+    if(e.key === "Enter" && !e.shiftKey){ e.preventDefault(); render(); }
+  });
+
+  /* iframe kodu yapıştırıldığında adresi ayıkla ve hemen yükle */
+  elUrl.addEventListener("paste", function(){
+    setTimeout(function(){
+      var found = extract(elUrl.value);
+      if(found){
+        elUrl.value = found;
+        render();
+        say("Adres iframe kodundan çıkarıldı.");
+      }
+    }, 0);
+  });
+  document.getElementById("btn-tab").addEventListener("click", function(){
+    if(current) window.open(current, "_blank", "noopener");
+  });
+
+  launcher.addEventListener("click", function(){ toggleDock(); });
+  teaser.addEventListener("click", function(){ toggleDock(true); });
+  document.addEventListener("keydown", function(e){ if(e.key === "Escape") toggleDock(false); });
+
+  (function init(){
+    var u = null;
+    try{ u = new URLSearchParams(location.hash.slice(1)).get("u"); }catch(err){}
+    elUrl.value = u || DEFAULT;
+    render();
+  })();
+})();
+</script>
+
+</body>
+</html>

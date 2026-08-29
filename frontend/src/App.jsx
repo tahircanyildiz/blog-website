@@ -6,6 +6,7 @@ import Footer from './components/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
 import GoogleAnalytics from './components/GoogleAnalytics';
 import LandingPage from './pages/LandingPage';
+import Chatbot from './pages/Chatbot';
 import BlogList from './pages/BlogList';
 import BlogDetail from './pages/BlogDetail';
 import Login from './pages/Login';
@@ -64,6 +65,7 @@ function App() {
           <Route path="/" element={<Layout><LandingPage /></Layout>} />
           <Route path="/blog" element={<Layout><BlogList /></Layout>} />
           <Route path="/blog/:slug" element={<Layout><BlogDetail /></Layout>} />
+          <Route path="/chatbot" element={<Chatbot />} />
 
           {/* Login Route */}
           <Route path="/mrpurposeless/login" element={<Login />} />
