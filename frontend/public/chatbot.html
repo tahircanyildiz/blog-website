@@ -201,7 +201,6 @@ body{
     </div>
 
     <button class="btn" id="btn-load">Aç</button>
-    <button class="btn btn-sec" id="btn-tab">Yeni sekmede aç</button>
   </div>
 </aside>
 
@@ -304,7 +303,6 @@ body{
     }
 
     current = forceLight(proxify(raw));
-    document.getElementById("h-src").textContent = current;
 
     clearTimeout(timer);
     t0 = performance.now();
@@ -354,9 +352,6 @@ body{
         say("Adres iframe kodundan çıkarıldı.");
       }
     }, 0);
-  });
-  document.getElementById("btn-tab").addEventListener("click", function(){
-    if(current) window.open(current, "_blank", "noopener");
   });
 
   launcher.addEventListener("click", function(){ toggleDock(); });
