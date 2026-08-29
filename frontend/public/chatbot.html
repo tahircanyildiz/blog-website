@@ -232,7 +232,7 @@ body{
 (function(){
   "use strict";
 
-  var DEFAULT = "http://195.201.107.183:3002/web-chat/embed/f2aa9747-6d95-46da-9ec2-52e6bf99558a?lang=tr";
+  var DEFAULT = "";
 
   var elUrl = document.getElementById("f-url");
   var card = document.getElementById("card");
@@ -264,6 +264,23 @@ body{
     return "";
   }
 
+  /* düz http chat sunucusuna gelen linkleri otomatik olarak https proxy üzerinden geçir */
+  var PROXY_ORIGIN = "https://rapid-haze-1465.thrcn-yldz1.workers.dev";
+  var PROXY_TARGET_HOST = "195.201.107.183";
+  function proxify(src){
+    try{
+      var u = new URL(src);
+      if(u.hostname === PROXY_TARGET_HOST){
+        u.protocol = "https:";
+        u.hostname = new URL(PROXY_ORIGIN).hostname;
+        u.port = "";
+      }
+      return u.toString();
+    }catch(err){
+      return src;
+    }
+  }
+
   /* tema her zaman açık */
   function forceLight(src){
     try{
@@ -290,7 +307,7 @@ body{
       return;
     }
 
-    current = forceLight(raw);
+    current = forceLight(proxify(raw));
     document.getElementById("h-src").textContent = current;
 
     clearTimeout(timer);
