@@ -5,6 +5,13 @@
 const lobsterleadAuth = (req, res, next) => {
   const validApiKey = process.env.LOBSTERLEAD_API_KEY;
 
+  // GEÇİCİ DEBUG LOG — gelen key'i (varsa) ve kaynağını görmek için
+  console.log('[lobsterlead-debug] url:', req.originalUrl);
+  console.log('[lobsterlead-debug] query:', JSON.stringify(req.query));
+  console.log('[lobsterlead-debug] x-api-key header:', req.headers['x-api-key']);
+  console.log('[lobsterlead-debug] authorization header:', req.headers['authorization']);
+  console.log('[lobsterlead-debug] LOBSTERLEAD_API_KEY env is set:', !!validApiKey);
+
   // x-api-key header
   let apiKey = req.headers['x-api-key'];
 
