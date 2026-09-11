@@ -1,12 +1,9 @@
 /**
  * LobsterLead API Key Authentication Middleware
- * X-API-KEY header'ı ile gelen istekleri doğrular
+ * X-API-KEY header'ı, Authorization: Bearer, veya ?apiKey= query param'ı ile gelen istekleri doğrular
  */
 const lobsterleadAuth = (req, res, next) => {
   const validApiKey = process.env.LOBSTERLEAD_API_KEY;
-
-  // GEÇİCİ DEBUG LOG — LobsterLead'in gerçekte hangi header'ı gönderdiğini görmek için
-  console.log('[lobsterlead-debug] headers:', JSON.stringify(req.headers));
 
   // x-api-key header
   let apiKey = req.headers['x-api-key'];
@@ -19,6 +16,11 @@ const lobsterleadAuth = (req, res, next) => {
     } else {
       apiKey = auth;
     }
+  }
+
+  // query param: ?apiKey=... (header göndermeyen entegrasyonlar için)
+  if (!apiKey && req.query.apiKey) {
+    apiKey = req.query.apiKey;
   }
 
   if (!apiKey) {
